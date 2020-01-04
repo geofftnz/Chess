@@ -13,7 +13,7 @@ namespace Chess.Engine.Board
          */
 
 
-
+        private Piece[] board = new Piece[64];
 
     }
 }
