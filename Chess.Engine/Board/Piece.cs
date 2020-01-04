@@ -43,7 +43,7 @@ namespace Chess.Engine.Board
     }
 
     public static class PieceExtensions
-    { 
+    {
         public static PieceType GetPieceType(this Piece p)
         {
             return (PieceType)((int)p & 0x07);
@@ -55,6 +55,21 @@ namespace Chess.Engine.Board
                 return Player.None;
 
             return (Player)((((int)p & 0x08) >> 3) + 1);
+        }
+
+        public static Piece GetPiece(this Player player, PieceType type)
+        {
+            if (player == Player.None || type == PieceType.None)
+                return Piece.None;
+
+            return (Piece)((((int)player - 1) << 3) | (int)type);
+        }
+        public static Piece GetPiece(this PieceType type, Player player)
+        {
+            if (player == Player.None || type == PieceType.None)
+                return Piece.None;
+
+            return (Piece)((((int)player - 1) << 3) | (int)type);
         }
     }
 
