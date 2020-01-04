@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Chess.Engine.Board
 {
-    public class BoardState
+    public class BoardState : ICloneable
     {
         /// <summary>
         /// board array
@@ -15,6 +15,15 @@ namespace Chess.Engine.Board
         {
         }
 
+        public BoardState(string pieces)
+        {
+
+        }
+        public BoardState(IEnumerable<string> pieces)
+        {
+
+        }
+
         public Piece PieceAt(Square s)
         {
             return Board[(int)s];
@@ -22,12 +31,12 @@ namespace Chess.Engine.Board
 
         public void SetupBoard()
         {
-            for(int i = 0; i < 64; i++)
+            for (int i = 0; i < 64; i++)
             {
                 Board[i] = Piece.None;
             }
 
-            for(int i = 0; i < 8; i++)
+            for (int i = 0; i < 8; i++)
             {
                 Board[(int)((File)i).GetSquare(2)] = Piece.WhitePawn;
                 Board[(int)((File)i).GetSquare(7)] = Piece.BlackPawn;
@@ -52,5 +61,39 @@ namespace Chess.Engine.Board
             Board[(int)Square.h8] = Piece.BlackRook;
         }
 
+        public object Clone()
+        {
+            var newBoard = new BoardState();
+            for (int i = 0; i < 64; i++)
+            {
+                newBoard.Board[i] = Board[i];
+            }
+            return newBoard;
+        }
+
+        public void Apply(Move m)
+        {
+            // validate move
+            ValidateMove(m);
+        }
+
+        public BoardState CloneAndApply(Move m)
+        {
+            BoardState newBoard = (BoardState)Clone();
+            newBoard.Apply(m);
+            return newBoard;
+        }
+
+        public void ValidateMove(Move m)
+        {
+            if (PieceAt(m.From) != m.Piece)
+            {
+                throw new InvalidOperationException($"Move specifies a {m.Piece} at {m.From}, but found {PieceAt(m.From)}");
+            }
+            if (!m.IsCapturing && PieceAt(m.To) != Piece.None)
+            {
+                throw new InvalidOperationException($"Move to {m.To} would capture {PieceAt(m.To)}, but move is not marked as a capturing move");
+            }
+        }
     }
 }

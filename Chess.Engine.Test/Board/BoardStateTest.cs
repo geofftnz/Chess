@@ -1,6 +1,7 @@
 ﻿using Chess.Engine.Board;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -57,8 +58,26 @@ namespace Chess.Engine.Test.Board
             Assert.Equal(p, initialBoard.PieceAt(s));
         }
 
+        /*
+        public static List<Move> invalidMoves = new List<Move>
+        {
+            new Move(Piece.WhitePawn,Square.a3,Square.a4)
+        };
 
+        public static IEnumerable<object[]> InvalidMoves =>
+            new List<object[]>
+            {
+                var b = new BoardState();
+                b.SetupBoard();
+                return new object[] { b, m };
+            });
 
+        [Theory]
+        [MemberData(nameof(InvalidMoves))]
+        public void prevents_invalid_moves(BoardState b, Move m)
+        {
+            Assert.Throws<InvalidOperationException>(() => b.CloneAndApply(m));
+        }*/
 
     }
 }
