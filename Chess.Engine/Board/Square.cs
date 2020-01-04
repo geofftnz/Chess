@@ -84,6 +84,13 @@ namespace Chess.Engine.Board
         h
     }
 
+    public enum Colour
+    {
+        Dark = 0,
+        Light = 1
+    }
+
+
     public static class SquareExtensions
     {
         public static int GetRank(this Square s)
@@ -104,6 +111,11 @@ namespace Chess.Engine.Board
             return (Square)((int)f << 3 | (rank - 1));
         }
 
+        public static Colour GetColour(this Square s)
+        {
+            return (Colour)(1 - ((int)s.GetFile() & 0x01) ^ (s.GetRank() & 0x01));
+        }
+
         public static Square? Offset(this Square s, int dfile = 0, int drank = 0)
         {
             var currentRank = s.GetRank();
@@ -112,7 +124,7 @@ namespace Chess.Engine.Board
             int newRank = currentRank + drank;
             int newFile = (int)currentFile + dfile;
 
-            if (newRank >= 1 && newRank <= 8 && newFile>=0 && newFile <= 7)
+            if (newRank >= 1 && newRank <= 8 && newFile >= 0 && newFile <= 7)
             {
                 return ((File)newFile).GetSquare(newRank);
             }

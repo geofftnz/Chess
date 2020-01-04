@@ -132,5 +132,24 @@ namespace Chess.Engine.Test.Board
         {
             Assert.Equal(dest, s.Offset(dfile, drank));
         }
+
+        [Theory]
+        [InlineData(Square.a1, Colour.Dark)]
+        [InlineData(Square.a2, Colour.Light)]
+        [InlineData(Square.a3, Colour.Dark)]
+        [InlineData(Square.a4, Colour.Light)]
+        [InlineData(Square.a5, Colour.Dark)]
+        [InlineData(Square.a6, Colour.Light)]
+        [InlineData(Square.a7, Colour.Dark)]
+        [InlineData(Square.a8, Colour.Light)]
+
+        [InlineData(Square.c3, Colour.Dark)]
+        [InlineData(Square.h7, Colour.Light)]
+        [InlineData(Square.h8, Colour.Dark)]
+        public void can_get_square_colour(Square s, Colour c)
+        {
+            Assert.Equal(c, s.GetColour());
+        }
     }
+
 }
