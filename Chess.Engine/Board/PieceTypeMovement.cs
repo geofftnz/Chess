@@ -8,26 +8,26 @@ namespace Chess.Engine.Board
     {
         public static IEnumerable<Square> RookMoves(Square s)
         {
-            Square? newSquare;
-            for(int i = 1; i < 8; i++)
+            for (int i = 1; i < 8; i++)
             {
-                if ((newSquare = s.Offset(-i, 0)).HasValue)
-                {
-                    yield return (newSquare.Value);
-                }
-                if ((newSquare = s.Offset(i, 0)).HasValue)
-                {
-                    yield return (newSquare.Value);
-                }
-                if ((newSquare = s.Offset(0, -i)).HasValue)
-                {
-                    yield return (newSquare.Value);
-                }
-                if ((newSquare = s.Offset(0, i)).HasValue)
-                {
-                    yield return (newSquare.Value);
-                }
+                { if (s.TryOffset(-i, 0, out var newSquare)) yield return newSquare; }
+                { if (s.TryOffset(i, 0, out var newSquare)) yield return newSquare; }
+                { if (s.TryOffset(0, -i, out var newSquare)) yield return newSquare; }
+                { if (s.TryOffset(0, i, out var newSquare)) yield return newSquare; }
             }
+        }
+
+        public static IEnumerable<Square> KnightMoves(Square s)
+        {
+            { if (s.TryOffset(-1, -2, out var newSquare)) yield return newSquare; }
+            { if (s.TryOffset(1, -2, out var newSquare)) yield return newSquare; }
+            { if (s.TryOffset(-2, -1, out var newSquare)) yield return newSquare; }
+            { if (s.TryOffset(2, -1, out var newSquare)) yield return newSquare; }
+
+            { if (s.TryOffset(-1, 2, out var newSquare)) yield return newSquare; }
+            { if (s.TryOffset(1, 2, out var newSquare)) yield return newSquare; }
+            { if (s.TryOffset(-2, 1, out var newSquare)) yield return newSquare; }
+            { if (s.TryOffset(2, 1, out var newSquare)) yield return newSquare; }
         }
 
         public static IEnumerable<Square> GetMoves(this PieceType p, Square s)
@@ -39,6 +39,8 @@ namespace Chess.Engine.Board
                 case PieceType.Pawn:
                     break;
                 case PieceType.Knight:
+                    foreach (var move in KnightMoves(s))
+                        yield return move;
                     break;
                 case PieceType.Bishop:
                     break;

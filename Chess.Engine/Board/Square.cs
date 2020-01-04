@@ -130,5 +130,17 @@ namespace Chess.Engine.Board
             }
             return null;
         }
+
+        public static bool TryOffset(this Square s, int dfile, int drank, out Square dest)
+        {
+            Square? newSquare = s.Offset(dfile, drank);
+            if (newSquare.HasValue)
+            {
+                dest = newSquare.Value;
+                return true;
+            }
+            dest = s;
+            return false;
+        }
     }
 }

@@ -137,7 +137,7 @@ namespace Chess.Engine.Board
         public IEnumerable<Move> GetMoves(Square square)
         {
             var piece = PieceAt(square);
-
+            yield break;
         }
     }
 }
