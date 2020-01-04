@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Chess.Engine.Exceptions;
+using Chess.Engine.Parsers;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Chess.Engine.Board
@@ -15,26 +18,49 @@ namespace Chess.Engine.Board
         {
         }
 
-        public BoardState(string pieces)
+        public BoardState(string pieces) : this(pieces.Split(' ').Select(a => a.ToPositionedPiece()))
         {
 
         }
-        public BoardState(IEnumerable<string> pieces)
+        public BoardState(IEnumerable<PositionedPiece> positionedPieces)
         {
+            Clear();
 
+            foreach (var positionedPiece in positionedPieces)
+            {
+                SetPieceAt(positionedPiece);
+            }
         }
+
+        public static BoardState InitialBoard => new BoardState().SetupBoard();
 
         public Piece PieceAt(Square s)
         {
             return Board[(int)s];
         }
 
-        public void SetupBoard()
+        public void SetPieceAt(Square s,Piece p)
+        {
+            Board[(int)s] = p;
+        }
+
+        public void SetPieceAt(PositionedPiece p)
+        {
+            SetPieceAt(p.square, p.piece);
+        }
+
+        public BoardState Clear()
         {
             for (int i = 0; i < 64; i++)
             {
                 Board[i] = Piece.None;
             }
+            return this;
+        }
+
+        public BoardState SetupBoard()
+        {
+            Clear();
 
             for (int i = 0; i < 8; i++)
             {
@@ -59,6 +85,8 @@ namespace Chess.Engine.Board
             Board[(int)Square.f8] = Piece.BlackBishop;
             Board[(int)Square.g8] = Piece.BlackKnight;
             Board[(int)Square.h8] = Piece.BlackRook;
+
+            return this;
         }
 
         public object Clone()
@@ -88,12 +116,28 @@ namespace Chess.Engine.Board
         {
             if (PieceAt(m.From) != m.Piece)
             {
-                throw new InvalidOperationException($"Move specifies a {m.Piece} at {m.From}, but found {PieceAt(m.From)}");
+                throw new InvalidMoveException(InvalidMoveReason.PieceNotAtSpecifiedSquare);
             }
-            if (!m.IsCapturing && PieceAt(m.To) != Piece.None)
+            if (PieceAt(m.To).GetPlayer() == m.Player)
             {
-                throw new InvalidOperationException($"Move to {m.To} would capture {PieceAt(m.To)}, but move is not marked as a capturing move");
+                throw new InvalidMoveException(InvalidMoveReason.TargetSquareOccupiedByPlayer);
             }
+
+            if (!m.IsCapturing && PieceAt(m.To).GetPlayer() != m.Player)
+            {
+                throw new InvalidMoveException(InvalidMoveReason.CapturingButNotMarkedAsCapture);
+            }
+        }
+
+        public IEnumerable<Move> GetMoves(Player player)
+        {
+            yield break;
+        }
+
+        public IEnumerable<Move> GetMoves(Square square)
+        {
+            var piece = PieceAt(square);
+
         }
     }
 }

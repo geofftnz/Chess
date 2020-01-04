@@ -1,4 +1,5 @@
 ﻿using Chess.Engine.Board;
+using Chess.Engine.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,26 +59,37 @@ namespace Chess.Engine.Test.Board
             Assert.Equal(p, initialBoard.PieceAt(s));
         }
 
-        /*
-        public static List<Move> invalidMoves = new List<Move>
+        [Fact]
+        public void can_parse_initial_board_state()
         {
-            new Move(Piece.WhitePawn,Square.a3,Square.a4)
-        };
+            var b = new BoardState("wpa1 bNc5 wqc6");
+            Assert.Equal(Piece.WhitePawn, b.PieceAt(Square.a1));
+            Assert.Equal(Piece.BlackKnight, b.PieceAt(Square.c5));
+            Assert.Equal(Piece.WhiteQueen, b.PieceAt(Square.c6));
+        }
 
         public static IEnumerable<object[]> InvalidMoves =>
             new List<object[]>
             {
-                var b = new BoardState();
-                b.SetupBoard();
-                return new object[] { b, m };
-            });
+                new object[] { BoardState.InitialBoard, new Move(Piece.WhitePawn, Square.a3, Square.a4), InvalidMoveReason.PieceNotAtSpecifiedSquare },
+                new object[] { new BoardState("wpa3 bpa4"), new Move(Piece.WhitePawn, Square.a3, Square.a4), InvalidMoveReason.CapturingButNotMarkedAsCapture },
+                new object[] { new BoardState("wpa3 wpa4"), new Move(Piece.WhitePawn, Square.a3, Square.a4), InvalidMoveReason.TargetSquareOccupiedByPlayer },
+            };
 
         [Theory]
         [MemberData(nameof(InvalidMoves))]
-        public void prevents_invalid_moves(BoardState b, Move m)
+        public void prevents_invalid_moves(BoardState b, Move m, InvalidMoveReason reason)
         {
-            Assert.Throws<InvalidOperationException>(() => b.CloneAndApply(m));
-        }*/
+            try
+            {
+                b.CloneAndApply(m);
+                Assert.True(false);
+            }
+            catch(InvalidMoveException ex)
+            {
+                Assert.Equal(reason, ex.Reason);
+            }
+        }
 
     }
 }
