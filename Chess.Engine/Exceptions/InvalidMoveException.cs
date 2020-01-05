@@ -13,7 +13,7 @@ namespace Chess.Engine.Exceptions
         {
         }
 
-        public InvalidMoveException(InvalidMoveReason reason) : this()
+        public InvalidMoveException(InvalidMoveReason reason) : base(reason.ToString())
         {
             Reason = reason;
         }

@@ -132,7 +132,7 @@ namespace Chess.Engine.Board
             }
             else
             {
-                
+
                 if (m.IsCapturing)
                 {
                     // if we're capturing en-passant, we need to remove the target piece
@@ -158,6 +158,12 @@ namespace Chess.Engine.Board
             return newBoard;
         }
 
+        public bool MoveResultsInCheckForPlayer(Move move, Player player)
+        {
+            var b = CloneAndApply(move);
+            return b.IsPlayerInCheck(player);
+        }
+
         public void ValidateMove(Move m)
         {
             if (PieceAt(m.From) != m.Piece)
@@ -180,14 +186,14 @@ namespace Chess.Engine.Board
             }
         }
 
-        public IEnumerable<Move> GetMoves(Player player)
+        public IEnumerable<Move> GetMoves(Player player, bool skipTestForCheck = false)
         {
             for (int i = 0; i < 64; i++)
             {
                 var p = PieceAt((Square)i);
                 if (p.GetPlayer() == player)
                 {
-                    foreach(var move in GetMoves((Square)i))
+                    foreach (var move in GetMoves((Square)i, skipTestForCheck))
                     {
                         yield return move;
                     }
@@ -195,14 +201,14 @@ namespace Chess.Engine.Board
             }
         }
 
-        public IEnumerable<Move> GetMoves(Square square)
+        public IEnumerable<Move> GetMoves(Square square, bool skipTestForCheck = false)
         {
             var piece = PieceAt(square);
 
             if (piece == Piece.None)
                 yield break;
 
-            foreach (var move in this.GetMoves(piece, square))
+            foreach (var move in this.GetMoves(piece, square, skipTestForCheck))
                 yield return move;
 
             yield break;
@@ -215,7 +221,7 @@ namespace Chess.Engine.Board
         /// <returns></returns>
         public bool IsPlayerInCheck(Player player)
         {
-            return GetMoves(player.GetOpponent()).Where(m => m.CapturedPiece == player.GetPiece(PieceType.King)).Any();
+            return GetMoves(player.GetOpponent(), true).Where(m => m.CapturedPiece == player.GetPiece(PieceType.King)).Any();
         }
 
         /// <summary>

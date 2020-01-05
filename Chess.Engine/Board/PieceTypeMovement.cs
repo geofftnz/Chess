@@ -219,7 +219,7 @@ namespace Chess.Engine.Board
             yield break;
         }
 
-        public static IEnumerable<Move> GetMoves(this BoardState b, Piece p, Square s)
+        public static IEnumerable<Move> GetMovesBeforeCheckTest(this BoardState b, Piece p, Square s)
         {
             switch (p.GetPieceType())
             {
@@ -254,6 +254,15 @@ namespace Chess.Engine.Board
             }
         }
 
-
+        public static IEnumerable<Move> GetMoves(this BoardState b, Piece p, Square s, bool skipTestForCheck = false)
+        {
+            foreach (var move in b.GetMovesBeforeCheckTest(p, s))
+            {
+                if (skipTestForCheck || !b.MoveResultsInCheckForPlayer(move, move.Player))
+                {
+                    yield return move;
+                }
+            }
+        }
     }
 }
