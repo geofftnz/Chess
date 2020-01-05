@@ -94,6 +94,24 @@ namespace Chess.Engine.Board
                     return Player.None;
             }
         }
+
+        public static string ToAbbr(this PieceType p)
+        {
+            switch (p)
+            {
+                case PieceType.Pawn: return "p";
+                case PieceType.Knight: return "N";
+                case PieceType.Bishop: return "B";
+                case PieceType.Rook: return "R";
+                case PieceType.Queen: return "Q";
+                case PieceType.King: return "K";
+                default: return string.Empty;
+            }
+        }
+        public static string ToAbbr(this Piece p)
+        {
+            return p.GetPieceType().ToAbbr();
+        }
     }
 
 }

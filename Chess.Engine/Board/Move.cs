@@ -26,7 +26,7 @@ namespace Chess.Engine.Board
 
         public bool IsCastle => IsWhiteKingSideCastle || IsWhiteQueenSideCastle || IsBlackKingSideCastle || IsBlackQueenSideCastle;
         public bool IsKingSideCastle => IsWhiteKingSideCastle || IsBlackKingSideCastle;
-        public bool IsQueenSideCastle => IsWhiteQueenSideCastle|| IsBlackQueenSideCastle;
+        public bool IsQueenSideCastle => IsWhiteQueenSideCastle || IsBlackQueenSideCastle;
 
         public Move(Piece piece, Square from, Square to, Piece capturedPiece = Piece.None, bool isWithCheck = false, bool isEnPassant = false, PieceType promoteTo = PieceType.None)
         {
@@ -78,6 +78,43 @@ namespace Chess.Engine.Board
             }
         }
 
+        public override string ToString()
+        {
+            return $"{Player} {PieceType} {From}->{To}";
+        }
 
+        private string CheckAnnotation => (IsWithCheck ? "+" : "");
+        public string ToAnnotation()
+        {
+            if (IsKingSideCastle)
+                return "O-O" + CheckAnnotation;
+
+            if (IsQueenSideCastle)
+                return "O-O-O" + CheckAnnotation;
+
+            if (PieceType == PieceType.Pawn)
+            {
+                if (IsCapturing)
+                {
+                    return $"{From.GetFile()}x{To}" + CheckAnnotation;
+                }
+                else
+                {
+                    return To.ToString() + CheckAnnotation;
+                }
+            }
+            else
+            {
+                if (IsCapturing)
+                {
+                    // todo: ambiguity
+                    return $"{Piece.ToAbbr()}x{To}" + CheckAnnotation;
+                }
+                else
+                {
+                    return $"{Piece.ToAbbr()}{To}" + CheckAnnotation;
+                }
+            }
+        }
     }
 }

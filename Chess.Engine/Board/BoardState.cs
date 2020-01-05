@@ -302,6 +302,11 @@ namespace Chess.Engine.Board
             }
         }
 
+        public IEnumerable<Move> GetMovesForNextPlayer()
+        {
+            return GetMoves(NextPlayerToMove);
+        }
+
         public IEnumerable<Move> GetMoves(Square square, bool skipTestForCheck = false)
         {
             var piece = PieceAt(square);

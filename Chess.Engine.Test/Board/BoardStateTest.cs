@@ -234,5 +234,14 @@ namespace Chess.Engine.Test.Board
             Assert.True(b.BlackCastlingKingSideAvailable);
             Assert.False(b.BlackCastlingQueenSideAvailable);
         }
+
+        [Fact]
+        public void generates_opening_moves_for_white()
+        {
+            var b = BoardState.InitialBoard;
+            var moves = b.GetMovesForNextPlayer().ToList();
+
+            Assert.All(moves, m => Assert.Equal(Player.White, m.Player));
+        }
     }
 }
