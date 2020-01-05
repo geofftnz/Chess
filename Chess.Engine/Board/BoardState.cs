@@ -14,6 +14,10 @@ namespace Chess.Engine.Board
         /// </summary>
         public Piece[] Board { get; } = new Piece[64];
 
+        public Square? EnPassantTargetSquare { get; set; } = null;
+        public Player EnPassantTargetPlayer { get; set; } = Player.None;
+
+
         public BoardState()
         {
         }
@@ -38,6 +42,8 @@ namespace Chess.Engine.Board
         {
             return Board[(int)s];
         }
+
+        public bool IsEmpty(Square s) => PieceAt(s) == Piece.None;
 
         public void SetPieceAt(Square s,Piece p)
         {
@@ -137,6 +143,15 @@ namespace Chess.Engine.Board
         public IEnumerable<Move> GetMoves(Square square)
         {
             var piece = PieceAt(square);
+
+            if (piece == Piece.None)
+                yield break;
+
+            
+
+
+
+
             yield break;
         }
     }
