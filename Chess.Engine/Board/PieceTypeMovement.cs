@@ -240,17 +240,17 @@ namespace Chess.Engine.Board
             int[] captureFiles = new int[] { -1, 1 };
 
             // can we move forward into an empty square?
-            var target = s.Offset(0, forward) ?? throw new InvalidOperationException("Pawn should not be on the last rank without promoting");
-            if (b.IsEmpty(target))
+            var target1 = s.Offset(0, forward) ?? throw new InvalidOperationException("Pawn should not be on the last rank without promoting");
+            if (b.IsEmpty(target1))
             {
-                if (target.GetRank() == promotionRank)
+                if (target1.GetRank() == promotionRank)
                 {
                     // TODO: choose promotion piece
-                    yield return new Move(p, s, target, Piece.None, false, false, PieceType.Queen);
+                    yield return new Move(p, s, target1, Piece.None, false, false, PieceType.Queen);
                 }
                 else
                 {
-                    yield return new Move(p, s, target, Piece.None);
+                    yield return new Move(p, s, target1, Piece.None);
                 }
             }
 
@@ -258,7 +258,7 @@ namespace Chess.Engine.Board
             var target2 = s.Offset(0, forward * 2);
             if (((p.GetPlayer() == Player.White && s.GetRank() == 2) ||
                  (p.GetPlayer() == Player.Black && s.GetRank() == 7)) &&
-                b.IsEmpty(target2.Value))
+                b.IsEmpty(target2.Value) && b.IsEmpty(target1))
             {
                 yield return new Move(p, s, target2.Value, Piece.None);
             }
@@ -271,7 +271,7 @@ namespace Chess.Engine.Board
                 .Where(sq => !b.IsEmpty(sq) && b.PieceAt(sq).GetPlayer() != p.GetPlayer())
                 )
             {
-                if (target.GetRank() == promotionRank)
+                if (target1.GetRank() == promotionRank)
                 {
                     // TODO: choose promotion piece
                     yield return new Move(p, s, target3, b.PieceAt(target3), false, false, PieceType.Queen);

@@ -185,6 +185,15 @@ namespace Chess.Engine.Test.Board
             Assert.Contains(new Move(Piece.BlackPawn, Square.c7, Square.c5), moves);
         }
 
+
+        [Fact]
+        public void does_not_allow_pawn_to_jump_on_initial_move()
+        {
+            var b = new BoardState("wpd2 brd3");
+            var moves = b.GetMoves(Piece.WhitePawn, Square.d2).ToList();
+            Assert.Empty(moves);
+        }
+
         [Fact]
         public void produces_pawn_move_white_capturing()
         {
