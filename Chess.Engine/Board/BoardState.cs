@@ -14,7 +14,7 @@ namespace Chess.Engine.Board
         /// </summary>
         public Piece[] Board { get; } = new Piece[64];
 
-        private int[] Flags = new int[6];
+        private int[] Flags = new int[9];
         public bool WhiteCastlingKingSideAvailable { get => Flags[0] == 1; set => Flags[0] = value ? 1 : 0; }
         public bool WhiteCastlingQueenSideAvailable { get => Flags[1] == 1; set => Flags[1] = value ? 1 : 0; }
         public bool BlackCastlingKingSideAvailable { get => Flags[2] == 1; set => Flags[2] = value ? 1 : 0; }
@@ -23,11 +23,17 @@ namespace Chess.Engine.Board
         public Square? EnPassantTargetSquare { get => (Flags[4] == -1) ? null : (Square?)Flags[4]; set => Flags[4] = value.HasValue ? (int)value.Value : -1; }
         public Player EnPassantTargetPlayer { get => (Player)Flags[5]; set => Flags[5] = (int)value; }
 
+        public bool WhiteInCheck { get => Flags[6] == 1; set => Flags[6] = value ? 1 : 0; }
+        public bool BlackInCheck { get => Flags[7] == 1; set => Flags[7] = value ? 1 : 0; }
+
+        public Player NextPlayerToMove { get => (Player)Flags[8]; set => Flags[8] = (int)value; }
+
         public BoardState()
         {
             Clear();
             EnPassantTargetSquare = null;
             EnPassantTargetPlayer = Player.None;
+            NextPlayerToMove = Player.White;
         }
 
         public BoardState(string pieces) : this(pieces.Split(' ').Select(a => a.ToPositionedPiece()))
@@ -75,6 +81,13 @@ namespace Chess.Engine.Board
             return this;
         }
 
+        public BoardState SetCheckFlags()
+        {
+            WhiteInCheck = IsPlayerInCheck(Player.White);
+            BlackInCheck = IsPlayerInCheck(Player.Black);
+            return this;
+        }
+
         public BoardState SetupBoard()
         {
             Clear();
@@ -107,6 +120,9 @@ namespace Chess.Engine.Board
             WhiteCastlingQueenSideAvailable = true;
             BlackCastlingKingSideAvailable = true;
             BlackCastlingQueenSideAvailable = true;
+            EnPassantTargetPlayer = Player.None;
+            EnPassantTargetSquare = null;
+            NextPlayerToMove = Player.White;
 
             return this;
         }
@@ -130,32 +146,62 @@ namespace Chess.Engine.Board
             // remove piece from original position
             ClearSquare(m.From);
 
-            // add piece to target position
-
-            // are we promoting a pawn?
-            if (m.PromoteTo != PieceType.None)
+            // are we castling?
+            if (m.IsCastle)
             {
-                SetPieceAt(m.To, m.Player.GetPiece(m.PromoteTo));
-            }
-            else
-            {
-
-                if (m.IsCapturing)
+                if (m.IsWhiteKingSideCastle)
                 {
-                    // if we're capturing en-passant, we need to remove the target piece
-                    if (m.IsEnPassant)
+                    ClearSquare(Square.h1); // vacate rook
+                    SetPieceAt(Square.f1, Piece.WhiteRook); // move rook
+                    SetPieceAt(Square.g1, Piece.WhiteKing); // move king
+                }
+                else if (m.IsWhiteQueenSideCastle)
+                {
+                    ClearSquare(Square.a1); // vacate rook
+                    SetPieceAt(Square.d1, Piece.WhiteRook); // move rook
+                    SetPieceAt(Square.c1, Piece.WhiteKing); // move king
+                }
+                else if (m.IsBlackKingSideCastle)
+                {
+                    ClearSquare(Square.h8); // vacate rook
+                    SetPieceAt(Square.f8, Piece.BlackRook); // move rook
+                    SetPieceAt(Square.g8, Piece.BlackKing); // move king
+                }
+                else if (m.IsBlackQueenSideCastle)
+                {
+                    ClearSquare(Square.a8); // vacate rook
+                    SetPieceAt(Square.d8, Piece.BlackRook); // move rook
+                    SetPieceAt(Square.c8, Piece.BlackKing); // move king
+                }
+            }
+            else  // normal non-castling move.
+            {
+
+                // add piece to target position
+                // - are we promoting a pawn?
+                if (m.PromoteTo != PieceType.None)
+                {
+                    SetPieceAt(m.To, m.Player.GetPiece(m.PromoteTo));
+                }
+                else
+                {
+                    if (m.IsCapturing)
                     {
-                        if (EnPassantTargetSquare.HasValue)
+                        // if we're capturing en-passant, we need to remove the target piece
+                        if (m.IsEnPassant)
                         {
-                            ClearSquare(EnPassantTargetSquare.Value);
-                        }
-                        else
-                        {
-                            throw new InvalidMoveException(InvalidMoveReason.EnPassantNotValid);
+                            if (EnPassantTargetSquare.HasValue)
+                            {
+                                ClearSquare(EnPassantTargetSquare.Value);
+                            }
+                            else
+                            {
+                                throw new InvalidMoveException(InvalidMoveReason.EnPassantNotValid);
+                            }
                         }
                     }
+                    SetPieceAt(m.To, m.Piece);
                 }
-                SetPieceAt(m.To, m.Piece);
             }
 
             // Set en-passant for this move
@@ -200,6 +246,9 @@ namespace Chess.Engine.Board
                     default: break;
                 }
             }
+
+            SetCheckFlags();
+            NextPlayerToMove = m.Piece.GetPlayer().GetOpponent();  // doing it this way allows for multiple moves for testing
             return this;
         }
 

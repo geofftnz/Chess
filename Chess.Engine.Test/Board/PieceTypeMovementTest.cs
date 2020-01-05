@@ -272,5 +272,120 @@ namespace Chess.Engine.Test.Board
             Assert.DoesNotContain(moves, m => m.From == from && m.To == to);
         }
 
+        [Fact]
+        public void generated_moves_set_iswithcheck()
+        {
+            var b = new BoardState("wke5 brh1");
+            var moves = b.GetMoves(Player.Black).ToList();
+
+            foreach(var move in moves)
+            {
+                if (move.To == Square.h5 || move.To == Square.e1)
+                {
+                    Assert.True(move.IsWithCheck);
+                }
+                else
+                {
+                    Assert.False(move.IsWithCheck);
+                }
+            }
+        }
+
+        [Fact]
+        public void generates_castle_white_queenside()
+        {
+            var b = BoardState.InitialBoard;
+            b.Apply(b.GenerateMove(Square.b1, Square.a3));            
+            b.Apply(b.GenerateMove(Square.d2, Square.d4));
+            b.Apply(b.GenerateMove(Square.c1, Square.e3));
+            Assert.DoesNotContain(b.GetMoves(Player.White), m => m.IsWhiteQueenSideCastle);
+            b.Apply(b.GenerateMove(Square.d1, Square.d2));
+            Assert.Contains(b.GetMoves(Player.White), m => m.IsWhiteQueenSideCastle);
+        }
+        [Fact]
+        public void generates_castle_white_kingside()
+        {
+            var b = BoardState.InitialBoard;
+            b.Apply(b.GenerateMove(Square.g1, Square.h3));
+            b.Apply(b.GenerateMove(Square.e2, Square.e4));
+            Assert.DoesNotContain(b.GetMoves(Player.White), m => m.IsWhiteKingSideCastle);
+            b.Apply(b.GenerateMove(Square.f1, Square.b5));
+            Assert.Contains(b.GetMoves(Player.White), m => m.IsWhiteKingSideCastle);
+        }
+
+        [Fact]
+        public void generates_castle_black_kingside()
+        {
+            var b = BoardState.InitialBoard;
+            b.Apply(b.GenerateMove(Square.g8, Square.h6));
+            b.Apply(b.GenerateMove(Square.e7, Square.e6));
+            Assert.DoesNotContain(b.GetMoves(Player.Black), m => m.IsBlackKingSideCastle);
+            b.Apply(b.GenerateMove(Square.f8, Square.e7));
+            Assert.Contains(b.GetMoves(Player.Black), m => m.IsBlackKingSideCastle);
+        }
+        [Fact]
+        public void generates_castle_black_queenside()
+        {
+            var b = BoardState.InitialBoard;
+            b.Apply(b.GenerateMove(Square.b8, Square.b6));
+            b.Apply(b.GenerateMove(Square.d7, Square.d5));
+            b.Apply(b.GenerateMove(Square.c8, Square.f5));
+            Assert.DoesNotContain(b.GetMoves(Player.Black), m => m.IsBlackQueenSideCastle);
+            b.Apply(b.GenerateMove(Square.d8, Square.d7));
+            Assert.Contains(b.GetMoves(Player.Black), m => m.IsBlackQueenSideCastle);
+        }
+
+        [Fact]
+        public void will_not_castle_while_in_check()
+        {
+            var b = new BoardState("bra8 bke8 brh8 wqb5 wke1");
+            b.BlackCastlingKingSideAvailable = true;
+            b.BlackCastlingQueenSideAvailable = true;
+            b.SetCheckFlags();
+
+            Assert.DoesNotContain(b.GetMoves(Player.Black), m => m.IsBlackQueenSideCastle);
+            Assert.DoesNotContain(b.GetMoves(Player.Black), m => m.IsBlackKingSideCastle);
+        }
+
+        [Fact]
+        public void applies_castle_white_kingside()
+        {
+            var b = new BoardState("wra1 wke1 wrh1");
+            b.WhiteCastlingKingSideAvailable = true;
+            b.WhiteCastlingQueenSideAvailable = true;
+            b.Apply(b.GenerateMove(Square.e1, Square.g1));
+            Assert.Equal(Piece.WhiteKing, b.PieceAt(Square.g1));
+            Assert.Equal(Piece.WhiteRook, b.PieceAt(Square.f1));
+        }
+        [Fact]
+        public void applies_castle_white_queenside()
+        {
+            var b = new BoardState("wra1 wke1 wrh1");
+            b.WhiteCastlingKingSideAvailable = true;
+            b.WhiteCastlingQueenSideAvailable = true;
+            b.Apply(b.GenerateMove(Square.e1, Square.c1));
+            Assert.Equal(Piece.WhiteKing, b.PieceAt(Square.c1));
+            Assert.Equal(Piece.WhiteRook, b.PieceAt(Square.d1));
+        }
+        [Fact]
+        public void applies_castle_black_kingside()
+        {
+            var b = new BoardState("bra8 bke8 brh8");
+            b.BlackCastlingKingSideAvailable = true;
+            b.BlackCastlingQueenSideAvailable = true;
+            b.Apply(b.GenerateMove(Square.e8, Square.g8));
+            Assert.Equal(Piece.BlackKing, b.PieceAt(Square.g8));
+            Assert.Equal(Piece.BlackRook, b.PieceAt(Square.f8));
+        }
+        [Fact]
+        public void applies_castle_black_queenside()
+        {
+            var b = new BoardState("bra8 bke8 brh8");
+            b.BlackCastlingKingSideAvailable = true;
+            b.BlackCastlingQueenSideAvailable = true;
+            b.Apply(b.GenerateMove(Square.e8, Square.c8));
+            Assert.Equal(Piece.BlackKing, b.PieceAt(Square.c8));
+            Assert.Equal(Piece.BlackRook, b.PieceAt(Square.d8));
+        }
     }
 }

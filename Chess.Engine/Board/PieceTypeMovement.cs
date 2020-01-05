@@ -91,6 +91,85 @@ namespace Chess.Engine.Board
                 yield return new Move(p, s, square, b.PieceAt(square));
             }
         }
+
+        public static IEnumerable<Square> CastlingMoves(BoardState b, Piece p, Square s)
+        {
+
+            // white king
+            if (p == Piece.WhiteKing && s == Square.e1 && (b.WhiteCastlingKingSideAvailable || b.WhiteCastlingQueenSideAvailable))
+            {
+                if (!b.WhiteInCheck)
+                {
+                    // king-side
+                    if (b.WhiteCastlingKingSideAvailable)
+                    {
+                        // check for empty squares
+                        if (b.IsEmpty(Square.f1) && b.IsEmpty(Square.g1))
+                        {
+                            // ensure no check on f1 or g1
+                            if (!b.CloneAndApply(new Move(p, s, Square.f1)).IsPlayerInCheck(p.GetPlayer()) &&
+                                !b.CloneAndApply(new Move(p, s, Square.g1)).IsPlayerInCheck(p.GetPlayer()))
+                            {
+                                yield return Square.g1;
+                            }
+                        }
+                    }
+                    // queen-side
+                    if (b.WhiteCastlingQueenSideAvailable)
+                    {
+                        // check for empty squares
+                        if (b.IsEmpty(Square.b1) && b.IsEmpty(Square.c1) && b.IsEmpty(Square.d1))
+                        {
+                            // ensure no check on c1 or d1
+                            if (!b.CloneAndApply(new Move(p, s, Square.c1)).IsPlayerInCheck(p.GetPlayer()) &&
+                                !b.CloneAndApply(new Move(p, s, Square.d1)).IsPlayerInCheck(p.GetPlayer()))
+                            {
+                                yield return Square.c1;
+                            }
+                        }
+                    }
+                }
+            }
+            // black king
+            if (p == Piece.BlackKing && s == Square.e8 && (b.BlackCastlingKingSideAvailable || b.BlackCastlingQueenSideAvailable))
+            {
+                if (!b.BlackInCheck)
+                {
+                    // king-side
+                    if (b.BlackCastlingKingSideAvailable)
+                    {
+                        // check for empty squares
+                        if (b.IsEmpty(Square.f8) && b.IsEmpty(Square.g8))
+                        {
+                            // ensure no check on f8 or g8
+                            if (!b.CloneAndApply(new Move(p, s, Square.f8)).IsPlayerInCheck(p.GetPlayer()) &&
+                                !b.CloneAndApply(new Move(p, s, Square.g8)).IsPlayerInCheck(p.GetPlayer()))
+                            {
+                                yield return Square.g8;
+                            }
+                        }
+                    }
+                    // queen-side
+                    if (b.BlackCastlingQueenSideAvailable)
+                    {
+                        // check for empty squares
+                        if (b.IsEmpty(Square.b8) && b.IsEmpty(Square.c8) && b.IsEmpty(Square.d8))
+                        {
+                            // ensure no check on c8 or d8
+                            if (!b.CloneAndApply(new Move(p, s, Square.c8)).IsPlayerInCheck(p.GetPlayer()) &&
+                                !b.CloneAndApply(new Move(p, s, Square.d8)).IsPlayerInCheck(p.GetPlayer()))
+                            {
+                                yield return Square.c8;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            yield break;
+        }
+
         public static IEnumerable<Move> KingMoves(BoardState b, Piece p, Square s)
         {
             // collect potential target squares
@@ -103,6 +182,7 @@ namespace Chess.Engine.Board
                 .Concat(Walk(b, p, s, 1, 0, 1))
                 .Concat(Walk(b, p, s, 0, -1, 1))
                 .Concat(Walk(b, p, s, 0, 1, 1))
+                .Concat(CastlingMoves(b, p, s))
                 )
             {
                 yield return new Move(p, s, square, b.PieceAt(square));
@@ -258,6 +338,11 @@ namespace Chess.Engine.Board
         {
             foreach (var move in b.GetMovesBeforeCheckTest(p, s))
             {
+                if (!skipTestForCheck && b.MoveResultsInCheckForPlayer(move, move.Player.GetOpponent()))
+                {
+                    move.IsWithCheck = true;
+                }
+
                 if (skipTestForCheck || !b.MoveResultsInCheckForPlayer(move, move.Player))
                 {
                     yield return move;

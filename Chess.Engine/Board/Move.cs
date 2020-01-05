@@ -19,6 +19,15 @@ namespace Chess.Engine.Board
         public Player Player => Piece.GetPlayer();
         public PieceType PieceType => Piece.GetPieceType();
 
+        public bool IsWhiteKingSideCastle => From == Square.e1 && To == Square.g1 && Piece == Piece.WhiteKing;
+        public bool IsWhiteQueenSideCastle => From == Square.e1 && To == Square.c1 && Piece == Piece.WhiteKing;
+        public bool IsBlackKingSideCastle => From == Square.e8 && To == Square.g8 && Piece == Piece.BlackKing;
+        public bool IsBlackQueenSideCastle => From == Square.e8 && To == Square.c8 && Piece == Piece.BlackKing;
+
+        public bool IsCastle => IsWhiteKingSideCastle || IsWhiteQueenSideCastle || IsBlackKingSideCastle || IsBlackQueenSideCastle;
+        public bool IsKingSideCastle => IsWhiteKingSideCastle || IsBlackKingSideCastle;
+        public bool IsQueenSideCastle => IsWhiteQueenSideCastle|| IsBlackQueenSideCastle;
+
         public Move(Piece piece, Square from, Square to, Piece capturedPiece = Piece.None, bool isWithCheck = false, bool isEnPassant = false, PieceType promoteTo = PieceType.None)
         {
             From = from;
