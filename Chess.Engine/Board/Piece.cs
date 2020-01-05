@@ -84,33 +84,49 @@ namespace Chess.Engine.Board
 
         public static Player GetOpponent(this Player p)
         {
-            switch (p)
+            return p switch
             {
-                case Player.White:
-                    return Player.Black;
-                case Player.Black:
-                    return Player.White;
-                default:
-                    return Player.None;
-            }
+                Player.White => Player.Black,
+                Player.Black => Player.White,
+                _ => Player.None,
+            };
         }
 
         public static string ToAbbr(this PieceType p)
         {
-            switch (p)
+            return p switch
             {
-                case PieceType.Pawn: return "p";
-                case PieceType.Knight: return "N";
-                case PieceType.Bishop: return "B";
-                case PieceType.Rook: return "R";
-                case PieceType.Queen: return "Q";
-                case PieceType.King: return "K";
-                default: return string.Empty;
-            }
+                PieceType.Pawn => "p",
+                PieceType.Knight => "N",
+                PieceType.Bishop => "B",
+                PieceType.Rook => "R",
+                PieceType.Queen => "Q",
+                PieceType.King => "K",
+                _ => " ",
+            };
         }
         public static string ToAbbr(this Piece p)
         {
             return p.GetPieceType().ToAbbr();
+        }
+        public static char ToAbbrUnicode(this Piece p)
+        {
+            return p switch
+            {
+                Piece.WhitePawn => (char)0x2659,
+                Piece.WhiteKnight => (char)0x2658,
+                Piece.WhiteBishop => (char)0x2657,
+                Piece.WhiteRook => (char)0x2656,
+                Piece.WhiteQueen => (char)0x2655,
+                Piece.WhiteKing => (char)0x2654,
+                Piece.BlackPawn => (char)0x265F,
+                Piece.BlackKnight => (char)0x265E,
+                Piece.BlackBishop => (char)0x265D,
+                Piece.BlackRook => (char)0x265C,
+                Piece.BlackQueen => (char)0x265B,
+                Piece.BlackKing => (char)0x265A,
+                _ => ' ',
+            };
         }
     }
 

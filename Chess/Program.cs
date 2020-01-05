@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Text;
 
-namespace chess
+namespace Chess
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.OutputEncoding = Encoding.Unicode;
+            
+
+            var app = new RandomChess();
+            app.Run();
         }
     }
 }
