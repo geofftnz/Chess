@@ -45,7 +45,7 @@ namespace Chess.Engine.Board
 
         public bool IsEmpty(Square s) => PieceAt(s) == Piece.None;
 
-        public void SetPieceAt(Square s,Piece p)
+        public void SetPieceAt(Square s, Piece p)
         {
             Board[(int)s] = p;
         }
@@ -53,6 +53,11 @@ namespace Chess.Engine.Board
         public void SetPieceAt(PositionedPiece p)
         {
             SetPieceAt(p.square, p.piece);
+        }
+
+        public void ClearSquare(Square s)
+        {
+            Board[(int)s] = Piece.None;
         }
 
         public BoardState Clear()
@@ -105,10 +110,42 @@ namespace Chess.Engine.Board
             return newBoard;
         }
 
-        public void Apply(Move m)
+        public BoardState Apply(Move m)
         {
             // validate move
             ValidateMove(m);
+
+            // apply move
+
+            // remove piece from original position
+            ClearSquare(m.From);
+
+            // add piece to target position
+
+            // are we promoting a pawn?
+            if (m.PromoteTo != PieceType.None)
+            {
+                SetPieceAt(m.To, m.Player.GetPiece(m.PromoteTo));
+            }
+            else
+            {
+                
+                if (m.IsCapturing)
+                {
+                    // if we're capturing en-passant, we need to remove the target piece
+                    if (m.IsEnPassant)
+                    {
+
+                    }
+                }
+                SetPieceAt(m.To, m.Piece);
+            }
+
+            // Set en-passant for this move
+            EnPassantTargetSquare = m.GeneratedEnPassantOpportunity;
+            EnPassantTargetPlayer = EnPassantTargetSquare.HasValue ? m.Player : Player.None;
+
+            return this;
         }
 
         public BoardState CloneAndApply(Move m)
@@ -129,15 +166,30 @@ namespace Chess.Engine.Board
                 throw new InvalidMoveException(InvalidMoveReason.TargetSquareOccupiedByPlayer);
             }
 
-            if (!m.IsCapturing && PieceAt(m.To).GetPlayer() != m.Player)
+            if (!m.IsCapturing && !m.IsEnPassant && !IsEmpty(m.To) && PieceAt(m.To).GetPlayer() != m.Player)
             {
                 throw new InvalidMoveException(InvalidMoveReason.CapturingButNotMarkedAsCapture);
+            }
+
+            if (m.IsEnPassant && EnPassantTargetPlayer != m.Player.GetOpponent())
+            {
+                throw new InvalidMoveException(InvalidMoveReason.EnPassantNotValid);
             }
         }
 
         public IEnumerable<Move> GetMoves(Player player)
         {
-            yield break;
+            for (int i = 0; i < 64; i++)
+            {
+                var p = PieceAt((Square)i);
+                if (p.GetPlayer() == player)
+                {
+                    foreach(var move in GetMoves((Square)i))
+                    {
+                        yield return move;
+                    }
+                }
+            }
         }
 
         public IEnumerable<Move> GetMoves(Square square)
@@ -147,10 +199,8 @@ namespace Chess.Engine.Board
             if (piece == Piece.None)
                 yield break;
 
-            
-
-
-
+            foreach (var move in this.GetMoves(piece, square))
+                yield return move;
 
             yield break;
         }

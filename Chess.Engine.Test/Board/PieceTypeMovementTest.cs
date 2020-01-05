@@ -47,7 +47,7 @@ namespace Chess.Engine.Test.Board
             var b = new BoardState("wra1 bpa2 wpb1");
             var moves = b.GetMoves(Piece.WhiteRook, Square.a1).ToList();
             Assert.Single(moves);
-            Assert.Equal(new Move(Piece.WhiteRook, Square.a1, Square.a2, true), moves[0]);
+            Assert.Equal(new Move(Piece.WhiteRook, Square.a1, Square.a2, Piece.BlackPawn), moves[0]);
         }
 
 
@@ -153,14 +153,14 @@ namespace Chess.Engine.Test.Board
         {
             var b = new BoardState().Clear();
             var moves = b.GetMoves(Piece.WhitePawn, Square.c2).ToList();
-            Assert.Contains(new Move(Piece.WhitePawn, Square.c2, Square.c3, false), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.c2, Square.c3), moves);
         }
         [Fact]
         public void produces_pawn_move_black_normal()
         {
             var b = new BoardState().Clear();
             var moves = b.GetMoves(Piece.BlackPawn, Square.c7).ToList();
-            Assert.Contains(new Move(Piece.BlackPawn, Square.c7, Square.c6, false), moves);
+            Assert.Contains(new Move(Piece.BlackPawn, Square.c7, Square.c6), moves);
         }
 
         [Fact]
@@ -168,14 +168,14 @@ namespace Chess.Engine.Test.Board
         {
             var b = new BoardState().Clear();
             var moves = b.GetMoves(Piece.WhitePawn, Square.c2).ToList();
-            Assert.Contains(new Move(Piece.WhitePawn, Square.c2, Square.c4, false), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.c2, Square.c4), moves);
         }
         [Fact]
         public void produces_pawn_move_black_initial()
         {
             var b = new BoardState().Clear();
             var moves = b.GetMoves(Piece.BlackPawn, Square.c7).ToList();
-            Assert.Contains(new Move(Piece.BlackPawn, Square.c7, Square.c5, false), moves);
+            Assert.Contains(new Move(Piece.BlackPawn, Square.c7, Square.c5), moves);
         }
 
         [Fact]
@@ -184,8 +184,8 @@ namespace Chess.Engine.Test.Board
             var b = new BoardState("wpc4 bpb5 bpc5 bpd5");
             var moves = b.GetMoves(Piece.WhitePawn, Square.c4).ToList();
             Assert.Equal(2, moves.Count);
-            Assert.Contains(new Move(Piece.WhitePawn, Square.c4, Square.b5, true), moves);
-            Assert.Contains(new Move(Piece.WhitePawn, Square.c4, Square.d5, true), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.c4, Square.b5, Piece.BlackPawn), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.c4, Square.d5, Piece.BlackPawn), moves);
         }
 
         [Fact]
@@ -194,8 +194,8 @@ namespace Chess.Engine.Test.Board
             var b = new BoardState("bpc4 wpb3 wpc3 wpd3");
             var moves = b.GetMoves(Piece.BlackPawn, Square.c4).ToList();
             Assert.Equal(2, moves.Count);
-            Assert.Contains(new Move(Piece.BlackPawn, Square.c4, Square.b3, true), moves);
-            Assert.Contains(new Move(Piece.BlackPawn, Square.c4, Square.d3, true), moves);
+            Assert.Contains(new Move(Piece.BlackPawn, Square.c4, Square.b3, Piece.WhitePawn), moves);
+            Assert.Contains(new Move(Piece.BlackPawn, Square.c4, Square.d3, Piece.WhitePawn), moves);
         }
 
         [Fact]
@@ -203,14 +203,14 @@ namespace Chess.Engine.Test.Board
         {
             var b = new BoardState().Clear();
             var moves = b.GetMoves(Piece.WhitePawn, Square.c7).ToList();
-            Assert.Contains(new Move(Piece.WhitePawn, Square.c7, Square.c8, false, false, false, PieceType.Queen), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.c7, Square.c8, Piece.None, false, false, PieceType.Queen), moves);
         }
         [Fact]
         public void produces_pawn_move_black_promoting()
         {
             var b = new BoardState().Clear();
             var moves = b.GetMoves(Piece.BlackPawn, Square.c2).ToList();
-            Assert.Contains(new Move(Piece.BlackPawn, Square.c2, Square.c1, false, false, false, PieceType.Queen), moves);
+            Assert.Contains(new Move(Piece.BlackPawn, Square.c2, Square.c1, Piece.None, false, false, PieceType.Queen), moves);
         }
 
         [Fact]
@@ -219,8 +219,8 @@ namespace Chess.Engine.Test.Board
             var b = new BoardState("wpc7 bpb8 bpc8 bpd8");
             var moves = b.GetMoves(Piece.WhitePawn, Square.c7).ToList();
             Assert.Equal(2, moves.Count);
-            Assert.Contains(new Move(Piece.WhitePawn, Square.c7, Square.b8, true, false, false, PieceType.Queen), moves);
-            Assert.Contains(new Move(Piece.WhitePawn, Square.c7, Square.d8, true, false, false, PieceType.Queen), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.c7, Square.b8, Piece.BlackPawn, false, false, PieceType.Queen), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.c7, Square.d8, Piece.BlackPawn, false, false, PieceType.Queen), moves);
         }
 
         [Fact]
@@ -229,8 +229,8 @@ namespace Chess.Engine.Test.Board
             var b = new BoardState("bpc2 wpb1 wpc1 wpd1");
             var moves = b.GetMoves(Piece.BlackPawn, Square.c2).ToList();
             Assert.Equal(2, moves.Count);
-            Assert.Contains(new Move(Piece.BlackPawn, Square.c2, Square.b1, true, false, false, PieceType.Queen), moves);
-            Assert.Contains(new Move(Piece.BlackPawn, Square.c2, Square.d1, true, false, false, PieceType.Queen), moves);
+            Assert.Contains(new Move(Piece.BlackPawn, Square.c2, Square.b1, Piece.WhitePawn, false, false, PieceType.Queen), moves);
+            Assert.Contains(new Move(Piece.BlackPawn, Square.c2, Square.d1, Piece.WhitePawn, false, false, PieceType.Queen), moves);
         }
 
         [Fact]
@@ -241,7 +241,7 @@ namespace Chess.Engine.Test.Board
             b.EnPassantTargetSquare = Square.a3;
 
             var moves = b.GetMoves(Piece.BlackPawn, Square.b4).ToList();
-            Assert.Contains(new Move(Piece.BlackPawn, Square.b4, Square.a3, true, false, true), moves);
+            Assert.Contains(new Move(Piece.BlackPawn, Square.b4, Square.a3, Piece.WhitePawn, false, true), moves);
         }
 
         [Fact]
@@ -252,7 +252,7 @@ namespace Chess.Engine.Test.Board
             b.EnPassantTargetSquare = Square.f6;
 
             var moves = b.GetMoves(Piece.WhitePawn, Square.e5).ToList();
-            Assert.Contains(new Move(Piece.WhitePawn, Square.e5, Square.f6, true, false, true), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.e5, Square.f6, Piece.BlackPawn, false, true), moves);
         }
 
     }

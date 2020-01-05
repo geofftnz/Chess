@@ -74,6 +74,7 @@ namespace Chess.Engine.Test.Board
                 new object[] { BoardState.InitialBoard, new Move(Piece.WhitePawn, Square.a3, Square.a4), InvalidMoveReason.PieceNotAtSpecifiedSquare },
                 new object[] { new BoardState("wpa3 bpa4"), new Move(Piece.WhitePawn, Square.a3, Square.a4), InvalidMoveReason.CapturingButNotMarkedAsCapture },
                 new object[] { new BoardState("wpa3 wpa4"), new Move(Piece.WhitePawn, Square.a3, Square.a4), InvalidMoveReason.TargetSquareOccupiedByPlayer },
+                new object[] { new BoardState("wpa5 bpb5"), new Move(Piece.BlackPawn, Square.b5, Square.a4,Piece.WhitePawn,false,true), InvalidMoveReason.EnPassantNotValid },
             };
 
         [Theory]
@@ -85,10 +86,37 @@ namespace Chess.Engine.Test.Board
                 b.CloneAndApply(m);
                 Assert.True(false);
             }
-            catch(InvalidMoveException ex)
+            catch (InvalidMoveException ex)
             {
                 Assert.Equal(reason, ex.Reason);
             }
+        }
+
+        [Fact]
+        public void sets_en_passant_white()
+        {
+            var b = new BoardState("wpa2");
+            Assert.Null(b.EnPassantTargetSquare);
+            Assert.Equal(Player.None, b.EnPassantTargetPlayer);
+
+            b.Apply(new Move(Piece.WhitePawn, Square.a2, Square.a4));
+
+            Assert.Equal(Square.a3, b.EnPassantTargetSquare);
+            Assert.Equal(Player.White, b.EnPassantTargetPlayer);
+
+        }
+        [Fact]
+        public void sets_en_passant_black()
+        {
+            var b = new BoardState("bpa7");
+            Assert.Null(b.EnPassantTargetSquare);
+            Assert.Equal(Player.None, b.EnPassantTargetPlayer);
+
+            b.Apply(new Move(Piece.BlackPawn, Square.a7, Square.a5));
+
+            Assert.Equal(Square.a6, b.EnPassantTargetSquare);
+            Assert.Equal(Player.Black, b.EnPassantTargetPlayer);
+
         }
 
     }

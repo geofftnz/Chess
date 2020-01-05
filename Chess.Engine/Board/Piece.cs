@@ -64,12 +64,35 @@ namespace Chess.Engine.Board
 
             return (Piece)((((int)player - 1) << 3) | (int)type);
         }
+        public static Piece GetOpponentPiece(this Player player, PieceType type)
+        {
+            if (player == Player.White)
+                return Player.Black.GetPiece(type);
+
+            if (player == Player.Black)
+                return Player.White.GetPiece(type);
+
+            return Piece.None;
+        }
         public static Piece GetPiece(this PieceType type, Player player)
         {
             if (player == Player.None || type == PieceType.None)
                 return Piece.None;
 
             return (Piece)((((int)player - 1) << 3) | (int)type);
+        }
+
+        public static Player GetOpponent(this Player p)
+        {
+            switch (p)
+            {
+                case Player.White:
+                    return Player.Black;
+                case Player.Black:
+                    return Player.White;
+                default:
+                    return Player.None;
+            }
         }
     }
 

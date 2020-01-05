@@ -57,9 +57,7 @@ namespace Chess.Engine.Board
                 .Concat(Walk(b, p, s, 0, -1))
                 .Concat(Walk(b, p, s, 0, 1)))
             {
-                var current = b.PieceAt(square);
-
-                yield return new Move(p, s, square, current.GetPieceType() != PieceType.None && current.GetPlayer() != p.GetPlayer());
+                yield return new Move(p, s, square, b.PieceAt(square));
             }
         }
 
@@ -72,9 +70,7 @@ namespace Chess.Engine.Board
                 .Concat(Walk(b, p, s, -1, 1))
                 .Concat(Walk(b, p, s, 1, 1)))
             {
-                var current = b.PieceAt(square);
-
-                yield return new Move(p, s, square, current.GetPieceType() != PieceType.None && current.GetPlayer() != p.GetPlayer());
+                yield return new Move(p, s, square, b.PieceAt(square));
             }
         }
 
@@ -92,9 +88,7 @@ namespace Chess.Engine.Board
                 .Concat(Walk(b, p, s, 0, 1))
                 )
             {
-                var current = b.PieceAt(square);
-
-                yield return new Move(p, s, square, current.GetPieceType() != PieceType.None && current.GetPlayer() != p.GetPlayer());
+                yield return new Move(p, s, square, b.PieceAt(square));
             }
         }
         public static IEnumerable<Move> KingMoves(BoardState b, Piece p, Square s)
@@ -111,9 +105,7 @@ namespace Chess.Engine.Board
                 .Concat(Walk(b, p, s, 0, 1, 1))
                 )
             {
-                var current = b.PieceAt(square);
-
-                yield return new Move(p, s, square, current.GetPieceType() != PieceType.None && current.GetPlayer() != p.GetPlayer());
+                yield return new Move(p, s, square, b.PieceAt(square));
             }
         }
 
@@ -141,18 +133,18 @@ namespace Chess.Engine.Board
                 switch (targetplayer)
                 {
                     case Player.None:  // empty square, move to
-                        yield return new Move(p, s, square, false);
+                        yield return new Move(p, s, square, current);
                         break;
                     case Player.White:
                         if (p.GetPlayer() == Player.Black)  // can capture
                         {
-                            yield return new Move(p, s, square, true);
+                            yield return new Move(p, s, square, current);
                         }
                         break;
                     case Player.Black:
                         if (p.GetPlayer() == Player.White)  // can capture
                         {
-                            yield return new Move(p, s, square, true);
+                            yield return new Move(p, s, square, current);
                         }
                         break;
                     default:
@@ -174,11 +166,11 @@ namespace Chess.Engine.Board
                 if (target.GetRank() == promotionRank)
                 {
                     // TODO: choose promotion piece
-                    yield return new Move(p, s, target, false, false, false, PieceType.Queen);
+                    yield return new Move(p, s, target, Piece.None, false, false, PieceType.Queen);
                 }
                 else
                 {
-                    yield return new Move(p, s, target, false);
+                    yield return new Move(p, s, target, Piece.None);
                 }
             }
 
@@ -188,7 +180,7 @@ namespace Chess.Engine.Board
                  (p.GetPlayer() == Player.Black && s.GetRank() == 7)) &&
                 b.IsEmpty(target2.Value))
             {
-                yield return new Move(p, s, target2.Value, false);
+                yield return new Move(p, s, target2.Value, Piece.None);
             }
 
             // can we capture?
@@ -202,11 +194,11 @@ namespace Chess.Engine.Board
                 if (target.GetRank() == promotionRank)
                 {
                     // TODO: choose promotion piece
-                    yield return new Move(p, s, target3, true, false, false, PieceType.Queen);
+                    yield return new Move(p, s, target3, b.PieceAt(target3), false, false, PieceType.Queen);
                 }
                 else
                 {
-                    yield return new Move(p, s, target3, true);
+                    yield return new Move(p, s, target3, b.PieceAt(target3));
                 }
             }
 
@@ -220,7 +212,7 @@ namespace Chess.Engine.Board
                     .Where(sq => sq == b.EnPassantTargetSquare)
                     )
                 {
-                    yield return new Move(p, s, target3, true, false, true);
+                    yield return new Move(p, s, target3, p.GetPlayer().GetOpponentPiece(PieceType.Pawn), false, true);
                 }
             }
 

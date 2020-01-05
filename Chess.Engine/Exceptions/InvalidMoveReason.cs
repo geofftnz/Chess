@@ -9,6 +9,7 @@ namespace Chess.Engine.Exceptions
         Unspecified = 0,
         PieceNotAtSpecifiedSquare,
         TargetSquareOccupiedByPlayer,
-        CapturingButNotMarkedAsCapture
+        CapturingButNotMarkedAsCapture,
+        EnPassantNotValid
     }
 }

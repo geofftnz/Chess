@@ -10,7 +10,8 @@ namespace Chess.Engine.Board
         public Square From { get; set; }
         public Square To { get; set; }
         public Piece Piece { get; set; }
-        public bool IsCapturing { get; set; }
+        public Piece CapturedPiece { get; set; }
+        public bool IsCapturing => CapturedPiece != Piece.None;
         public bool IsWithCheck { get; set; }
         public bool IsEnPassant { get; set; }
         public PieceType PromoteTo { get; set; }
@@ -18,12 +19,12 @@ namespace Chess.Engine.Board
         public Player Player => Piece.GetPlayer();
         public PieceType PieceType => Piece.GetPieceType();
 
-        public Move(Piece piece, Square from, Square to, bool isCapturing = false, bool isWithCheck = false, bool isEnPassant = false, PieceType promoteTo = PieceType.None)
+        public Move(Piece piece, Square from, Square to, Piece capturedPiece = Piece.None, bool isWithCheck = false, bool isEnPassant = false, PieceType promoteTo = PieceType.None)
         {
             From = from;
             To = to;
             Piece = piece;
-            IsCapturing = isCapturing;
+            CapturedPiece = capturedPiece;
             IsWithCheck = isWithCheck;
             IsEnPassant = isEnPassant;
             PromoteTo = promoteTo;
