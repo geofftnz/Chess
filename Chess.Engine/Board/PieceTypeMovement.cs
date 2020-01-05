@@ -188,7 +188,7 @@ namespace Chess.Engine.Board
                 .Select(f => s.Offset(f, forward))
                 .Where(f => f.HasValue)
                 .Select(f => f.Value)
-                .Where(sq => b.PieceAt(sq).GetPlayer() != p.GetPlayer())
+                .Where(sq => !b.IsEmpty(sq) && b.PieceAt(sq).GetPlayer() != p.GetPlayer())
                 )
             {
                 if (target.GetRank() == promotionRank)

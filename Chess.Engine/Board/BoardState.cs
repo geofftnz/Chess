@@ -107,6 +107,9 @@ namespace Chess.Engine.Board
             {
                 newBoard.Board[i] = Board[i];
             }
+            newBoard.EnPassantTargetPlayer = EnPassantTargetPlayer;
+            newBoard.EnPassantTargetSquare = EnPassantTargetSquare;
+
             return newBoard;
         }
 
@@ -203,6 +206,31 @@ namespace Chess.Engine.Board
                 yield return move;
 
             yield break;
+        }
+
+        /// <summary>
+        /// A player is in check if any available opponent move could capture their king
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
+        public bool IsPlayerInCheck(Player player)
+        {
+            return GetMoves(player.GetOpponent()).Where(m => m.CapturedPiece == player.GetPiece(PieceType.King)).Any();
+        }
+
+        /// <summary>
+        /// A player is checkmated if they are in check and have no available moves
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
+        public bool IsPlayerCheckmated(Player player)
+        {
+            if (!IsPlayerInCheck(player))
+                return false;
+
+            // TODO: check for available moves.
+
+            return false;
         }
     }
 }

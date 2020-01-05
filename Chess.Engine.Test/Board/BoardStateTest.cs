@@ -116,7 +116,28 @@ namespace Chess.Engine.Test.Board
 
             Assert.Equal(Square.a6, b.EnPassantTargetSquare);
             Assert.Equal(Player.Black, b.EnPassantTargetPlayer);
+        }
 
+        [Fact]
+        public void generates_moves_for_player()
+        {
+            var b = new BoardState("wpb2 wpc2 bpf7");
+            var moves = b.GetMoves(Player.White).ToList();
+            Assert.Equal(4, moves.Count);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.b2, Square.b3), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.b2, Square.b4), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.c2, Square.c3), moves);
+            Assert.Contains(new Move(Piece.WhitePawn, Square.c2, Square.c4), moves);
+        }
+
+        [Theory]
+        [InlineData("bkc6 wrc2 wke1", Player.Black)]
+        [InlineData("bkc6 wrc2 wke1", Player.White, false)]
+        [InlineData("bkh8 brf1 bba2 wpd7 wrc6 wnb4 wke6", Player.White)]
+        public void detects_check(string boardState, Player p, bool result = true)
+        {
+            var b = new BoardState(boardState);
+            Assert.Equal(result, b.IsPlayerInCheck(p));
         }
 
     }
