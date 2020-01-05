@@ -140,5 +140,99 @@ namespace Chess.Engine.Test.Board
             Assert.Equal(result, b.IsPlayerInCheck(p));
         }
 
+
+        [Fact]
+        public void castling_flags_clear_for_white_on_king_move()
+        {
+            var b = BoardState.InitialBoard;
+            Assert.True(b.WhiteCastlingKingSideAvailable);
+            Assert.True(b.WhiteCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.e2, Square.e3));
+            Assert.True(b.WhiteCastlingKingSideAvailable);
+            Assert.True(b.WhiteCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.e1, Square.e2));
+            Assert.False(b.WhiteCastlingKingSideAvailable);
+            Assert.False(b.WhiteCastlingQueenSideAvailable);
+        }
+
+        [Fact]
+        public void castling_flags_clear_for_white_on_king_rook_move()
+        {
+            var b = BoardState.InitialBoard;
+            Assert.True(b.WhiteCastlingKingSideAvailable);
+            Assert.True(b.WhiteCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.h2, Square.h3));
+            Assert.True(b.WhiteCastlingKingSideAvailable);
+            Assert.True(b.WhiteCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.h1, Square.h2));
+            Assert.False(b.WhiteCastlingKingSideAvailable);
+            Assert.True(b.WhiteCastlingQueenSideAvailable);
+        }
+        [Fact]
+        public void castling_flags_clear_for_white_on_queen_rook_move()
+        {
+            var b = BoardState.InitialBoard;
+            Assert.True(b.WhiteCastlingKingSideAvailable);
+            Assert.True(b.WhiteCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.a2, Square.a3));
+            Assert.True(b.WhiteCastlingKingSideAvailable);
+            Assert.True(b.WhiteCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.a1, Square.a2));
+            Assert.True(b.WhiteCastlingKingSideAvailable);
+            Assert.False(b.WhiteCastlingQueenSideAvailable);
+        }
+
+        [Fact]
+        public void castling_flags_clear_for_black_on_king_move()
+        {
+            var b = BoardState.InitialBoard;
+            Assert.True(b.BlackCastlingKingSideAvailable);
+            Assert.True(b.BlackCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.e7, Square.e6));
+            Assert.True(b.BlackCastlingKingSideAvailable);
+            Assert.True(b.BlackCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.e8, Square.e7));
+            Assert.False(b.BlackCastlingKingSideAvailable);
+            Assert.False(b.BlackCastlingQueenSideAvailable);
+        }
+
+        [Fact]
+        public void castling_flags_clear_for_black_on_king_rook_move()
+        {
+            var b = BoardState.InitialBoard;
+            Assert.True(b.BlackCastlingKingSideAvailable);
+            Assert.True(b.BlackCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.h7, Square.h6));
+            Assert.True(b.BlackCastlingKingSideAvailable);
+            Assert.True(b.BlackCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.h8, Square.h7));
+            Assert.False(b.BlackCastlingKingSideAvailable);
+            Assert.True(b.BlackCastlingQueenSideAvailable);
+        }
+        [Fact]
+        public void castling_flags_clear_for_black_on_queen_rook_move()
+        {
+            var b = BoardState.InitialBoard;
+            Assert.True(b.BlackCastlingKingSideAvailable);
+            Assert.True(b.BlackCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.a7, Square.a6));
+            Assert.True(b.BlackCastlingKingSideAvailable);
+            Assert.True(b.BlackCastlingQueenSideAvailable);
+
+            b.Apply(b.GenerateMove(Square.a8, Square.a7));
+            Assert.True(b.BlackCastlingKingSideAvailable);
+            Assert.False(b.BlackCastlingQueenSideAvailable);
+        }
     }
 }

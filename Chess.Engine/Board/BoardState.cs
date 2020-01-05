@@ -14,22 +14,28 @@ namespace Chess.Engine.Board
         /// </summary>
         public Piece[] Board { get; } = new Piece[64];
 
-        public Square? EnPassantTargetSquare { get; set; } = null;
-        public Player EnPassantTargetPlayer { get; set; } = Player.None;
+        private int[] Flags = new int[6];
+        public bool WhiteCastlingKingSideAvailable { get => Flags[0] == 1; set => Flags[0] = value ? 1 : 0; }
+        public bool WhiteCastlingQueenSideAvailable { get => Flags[1] == 1; set => Flags[1] = value ? 1 : 0; }
+        public bool BlackCastlingKingSideAvailable { get => Flags[2] == 1; set => Flags[2] = value ? 1 : 0; }
+        public bool BlackCastlingQueenSideAvailable { get => Flags[3] == 1; set => Flags[3] = value ? 1 : 0; }
 
+        public Square? EnPassantTargetSquare { get => (Flags[4] == -1) ? null : (Square?)Flags[4]; set => Flags[4] = value.HasValue ? (int)value.Value : -1; }
+        public Player EnPassantTargetPlayer { get => (Player)Flags[5]; set => Flags[5] = (int)value; }
 
         public BoardState()
         {
+            Clear();
+            EnPassantTargetSquare = null;
+            EnPassantTargetPlayer = Player.None;
         }
 
         public BoardState(string pieces) : this(pieces.Split(' ').Select(a => a.ToPositionedPiece()))
         {
 
         }
-        public BoardState(IEnumerable<PositionedPiece> positionedPieces)
+        public BoardState(IEnumerable<PositionedPiece> positionedPieces) : this()
         {
-            Clear();
-
             foreach (var positionedPiece in positionedPieces)
             {
                 SetPieceAt(positionedPiece);
@@ -97,18 +103,19 @@ namespace Chess.Engine.Board
             Board[(int)Square.g8] = Piece.BlackKnight;
             Board[(int)Square.h8] = Piece.BlackRook;
 
+            WhiteCastlingKingSideAvailable = true;
+            WhiteCastlingQueenSideAvailable = true;
+            BlackCastlingKingSideAvailable = true;
+            BlackCastlingQueenSideAvailable = true;
+
             return this;
         }
 
         public object Clone()
         {
             var newBoard = new BoardState();
-            for (int i = 0; i < 64; i++)
-            {
-                newBoard.Board[i] = Board[i];
-            }
-            newBoard.EnPassantTargetPlayer = EnPassantTargetPlayer;
-            newBoard.EnPassantTargetSquare = EnPassantTargetSquare;
+            Board.CopyTo(newBoard.Board, 0);
+            Flags.CopyTo(newBoard.Flags, 0);
 
             return newBoard;
         }
@@ -138,7 +145,14 @@ namespace Chess.Engine.Board
                     // if we're capturing en-passant, we need to remove the target piece
                     if (m.IsEnPassant)
                     {
-
+                        if (EnPassantTargetSquare.HasValue)
+                        {
+                            ClearSquare(EnPassantTargetSquare.Value);
+                        }
+                        else
+                        {
+                            throw new InvalidMoveException(InvalidMoveReason.EnPassantNotValid);
+                        }
                     }
                 }
                 SetPieceAt(m.To, m.Piece);
@@ -148,6 +162,44 @@ namespace Chess.Engine.Board
             EnPassantTargetSquare = m.GeneratedEnPassantOpportunity;
             EnPassantTargetPlayer = EnPassantTargetSquare.HasValue ? m.Player : Player.None;
 
+            // Set castling flags if appropriate
+            if (m.Piece == Piece.WhiteKing)
+            {
+                WhiteCastlingKingSideAvailable = false;
+                WhiteCastlingQueenSideAvailable = false;
+            }
+            if (m.Piece == Piece.WhiteRook)
+            {
+                switch (m.From)
+                {
+                    case Square.a1:
+                        WhiteCastlingQueenSideAvailable = false;
+                        break;
+                    case Square.h1:
+                        WhiteCastlingKingSideAvailable = false;
+                        break;
+                    default: break;
+                }
+            }
+
+            if (m.Piece == Piece.BlackKing)
+            {
+                BlackCastlingKingSideAvailable = false;
+                BlackCastlingQueenSideAvailable = false;
+            }
+            if (m.Piece == Piece.BlackRook)
+            {
+                switch (m.From)
+                {
+                    case Square.a8:
+                        BlackCastlingQueenSideAvailable = false;
+                        break;
+                    case Square.h8:
+                        BlackCastlingKingSideAvailable = false;
+                        break;
+                    default: break;
+                }
+            }
             return this;
         }
 
@@ -212,6 +264,15 @@ namespace Chess.Engine.Board
                 yield return move;
 
             yield break;
+        }
+
+        public Move GenerateMove(Square from, Square to)
+        {
+            var piece = PieceAt(from);
+            if (piece == Piece.None)
+                throw new InvalidMoveException(InvalidMoveReason.PieceNotAtSpecifiedSquare);
+
+            return new Move(piece, from, to);
         }
 
         /// <summary>
