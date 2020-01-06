@@ -14,7 +14,7 @@ namespace Chess
         {
             var board = BoardState.InitialBoard;
             var random = new Random();
-            IStrategy strategy = new BasicNoLookAheadStrategy();
+            IStrategy strategy = new BasicLookAheadStrategy();
 
             while (true)
             {

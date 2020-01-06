@@ -28,6 +28,20 @@ namespace Chess.Engine.Board
 
         public Player NextPlayerToMove { get => (Player)Flags[8]; set => Flags[8] = (int)value; }
 
+        public IEnumerable<PositionedPiece> Pieces
+        {
+            get
+            {
+                for (int i = 0; i < 64; i++)
+                {
+                    if (Board[i] != Piece.None)
+                    {
+                        yield return new PositionedPiece(Board[i], (Square)i);
+                    }
+                }
+            }
+        }
+
         public BoardState()
         {
             Clear();
@@ -86,6 +100,13 @@ namespace Chess.Engine.Board
             WhiteInCheck = IsPlayerInCheck(Player.White);
             BlackInCheck = IsPlayerInCheck(Player.Black);
             return this;
+        }
+
+        public float GetBoardValue(Player player) => Pieces.Where(p => p.piece.GetPlayer() == player).Select(p => p.piece.GetPieceValue()).Sum();
+
+        public float GetBoardDifferentialValue()
+        {
+            return GetBoardValue(Player.White) - GetBoardValue(Player.Black);
         }
 
         public BoardState SetupBoard()

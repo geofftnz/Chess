@@ -243,5 +243,35 @@ namespace Chess.Engine.Test.Board
 
             Assert.All(moves, m => Assert.Equal(Player.White, m.Player));
         }
+
+        [Fact]
+        public void can_enumerate_pieces()
+        {
+            var b = new BoardState("wpa2 wpb2 wke1 bpa7 bke8");
+
+            Assert.Equal(5, b.Pieces.Count());
+            Assert.Equal(3, b.Pieces.Where(p => p.piece.GetPlayer() == Player.White).Count());
+        }
+
+        [Theory]
+        [InlineData(Player.White, 1, "wpa2 bpa3 bke8")]
+        [InlineData(Player.White, 4, "wpa2 wbb4 bpa3 bke8")]
+        public void can_get_player_value(Player player, int value, string board)
+        {
+            var b = new BoardState(board);
+            Assert.Equal(value, (int)b.GetBoardValue(player));
+        }
+
+        [Theory]
+        [InlineData(1, "wpa2")]
+        [InlineData(-1, "bpa2")]
+        [InlineData(1, "wpa2 wpa3 bpe7")]
+        [InlineData(-2, "wpa2 wpa3 bpe7 bbd4")]
+        public void can_get_differential_value(int value, string board)
+        {
+            var b = new BoardState(board);
+            Assert.Equal(value, (int)b.GetBoardDifferentialValue());
+        }
+
     }
 }
