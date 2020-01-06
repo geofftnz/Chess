@@ -82,6 +82,19 @@ namespace Chess.Engine.Board
             return (Piece)((((int)player - 1) << 3) | (int)type);
         }
 
+        public static float GetPieceValue(this PieceType p) => p switch
+        {
+            PieceType.Pawn => 1f,
+            PieceType.Knight => 3f,
+            PieceType.Bishop => 3f,
+            PieceType.Rook => 5f,
+            PieceType.Queen => 9f,
+            PieceType.King => 1000000000f,
+            _ => 0f
+        };
+
+        public static float GetPieceValue(this Piece p) => p.GetPieceType().GetPieceValue();
+
         public static Player GetOpponent(this Player p)
         {
             return p switch

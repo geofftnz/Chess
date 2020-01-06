@@ -80,7 +80,13 @@ namespace Chess.Engine.Board
 
         public override string ToString()
         {
-            return $"{Player} {PieceType} {From}->{To}";
+            if (IsKingSideCastle) 
+                return $"{Player} castles king-side";
+
+            if (IsQueenSideCastle) 
+                return $"{Player} castles queen-side";
+
+            return $"{Player} {PieceType} {From}->{To}" + (IsCapturing ? $" captures {CapturedPiece.GetPieceType()}" : "") + (IsWithCheck ? " with check" : "");
         }
 
         private string CheckAnnotation => (IsWithCheck ? "+" : "");

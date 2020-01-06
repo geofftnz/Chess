@@ -86,5 +86,28 @@ namespace Chess.Engine.Test.Board
         {
             Assert.Equal(p, t.GetPiece(pl));
         }
+
+        [Fact]
+        public void piece_values_match_between_players()
+        {
+            Assert.Equal(Piece.WhitePawn.GetPieceValue(), Piece.BlackPawn.GetPieceValue());
+            Assert.Equal(Piece.WhiteKnight.GetPieceValue(), Piece.BlackKnight.GetPieceValue());
+            Assert.Equal(Piece.WhiteBishop.GetPieceValue(), Piece.BlackBishop.GetPieceValue());
+            Assert.Equal(Piece.WhiteRook.GetPieceValue(), Piece.BlackRook.GetPieceValue());
+            Assert.Equal(Piece.WhiteQueen.GetPieceValue(), Piece.BlackQueen.GetPieceValue());
+            Assert.Equal(Piece.WhiteKing.GetPieceValue(), Piece.BlackKing.GetPieceValue());
+        }
+
+        [Fact]
+        public void piece_values_exist_in_a_sensible_order()
+        {
+            // does this really matter?
+            Assert.True(PieceType.Knight.GetPieceValue() > PieceType.Pawn.GetPieceValue());
+            Assert.True(PieceType.Bishop.GetPieceValue() > PieceType.Pawn.GetPieceValue());
+            Assert.True(PieceType.Rook.GetPieceValue() > PieceType.Knight.GetPieceValue());
+            Assert.True(PieceType.Rook.GetPieceValue() > PieceType.Bishop.GetPieceValue());
+            Assert.True(PieceType.Queen.GetPieceValue() > PieceType.Rook.GetPieceValue());
+            Assert.True(PieceType.King.GetPieceValue() > PieceType.Queen.GetPieceValue());
+        }
     }
 }
