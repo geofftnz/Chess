@@ -15,6 +15,7 @@ namespace Chess
             var board = BoardState.InitialBoard;
             var random = new Random();
             IStrategy strategy = new BasicLookAheadStrategy();
+            string reasoning;
 
             while (true)
             {
@@ -29,13 +30,13 @@ namespace Chess
                     break;
                 }
 
-                var move = strategy.SelectNextMove(board, board.NextPlayerToMove, moves);
+                var move = strategy.SelectNextMove(board, board.NextPlayerToMove, moves, out reasoning);
 
                 Console.Clear();
                 board.Apply(move);
                 board.RenderToConsole();
                 Console.WriteLine();
-                Console.WriteLine(move.ToString());
+                Console.WriteLine($"{move.ToString()} because {reasoning}");
                 Console.WriteLine($"{moves.Count} moves");
                 Console.WriteLine(string.Join(" ",moves.Select(m=>m.ToAnnotation())));
 

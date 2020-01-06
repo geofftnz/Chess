@@ -106,7 +106,27 @@ namespace Chess.Engine.Board
 
         public float GetBoardDifferentialValue()
         {
-            return GetBoardValue(Player.White) - GetBoardValue(Player.Black);
+            //return GetBoardValue(Player.White) - GetBoardValue(Player.Black);
+            float white = 0f;
+            float black = 0f;
+
+            foreach(var piece in Board)
+            {
+                switch (piece.GetPlayer())
+                {
+                    case Player.None:
+                        break;
+                    case Player.White:
+                        white += piece.GetPieceValue();
+                        break;
+                    case Player.Black:
+                        black += piece.GetPieceValue();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return white - black;
         }
 
         public BoardState SetupBoard()
@@ -157,7 +177,7 @@ namespace Chess.Engine.Board
             return newBoard;
         }
 
-        public BoardState Apply(Move m)
+        public BoardState Apply(Move m, bool skipFlagUpdate = false)
         {
             // validate move
             ValidateMove(m);
@@ -268,7 +288,10 @@ namespace Chess.Engine.Board
                 }
             }
 
-            SetCheckFlags();
+            if (!skipFlagUpdate)
+            {
+                SetCheckFlags();
+            }
             NextPlayerToMove = m.Piece.GetPlayer().GetOpponent();  // doing it this way allows for multiple moves for testing
             return this;
         }

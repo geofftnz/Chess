@@ -7,6 +7,6 @@ namespace Chess.Engine.Strategies
 {
     public interface IStrategy
     {
-        Move SelectNextMove(BoardState board, Player player, IList<Move> moves);
+        Move SelectNextMove(BoardState board, Player player, IList<Move> moves, out string reasoning);
     }
 }

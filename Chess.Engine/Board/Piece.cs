@@ -89,7 +89,7 @@ namespace Chess.Engine.Board
             PieceType.Bishop => 3f,
             PieceType.Rook => 5f,
             PieceType.Queen => 9f,
-            PieceType.King => 1000000000f,
+            PieceType.King => 1000f,
             _ => 0f
         };
 

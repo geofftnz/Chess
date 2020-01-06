@@ -9,8 +9,9 @@ namespace Chess.Engine.Strategies
     {
         private Random random = new Random();
 
-        public Move SelectNextMove(BoardState board, Player player, IList<Move> moves)
+        public Move SelectNextMove(BoardState board, Player player, IList<Move> moves, out string reasoning)
         {
+            reasoning = "Random";
             return moves[random.Next(0, moves.Count)];
         }
     }

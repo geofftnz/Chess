@@ -273,5 +273,21 @@ namespace Chess.Engine.Test.Board
             Assert.Equal(value, (int)b.GetBoardDifferentialValue());
         }
 
+        [Fact]
+        public void can_clone_board()
+        {
+            var b1 = BoardState.InitialBoard;
+            var b2 = (BoardState)b1.Clone();
+
+            for(int i = 0; i < b1.Board.Length; i++)
+            {
+                Assert.Equal(b1.Board[i], b2.Board[i]);
+            }
+
+            Assert.Equal(b1.BlackCastlingKingSideAvailable, b2.BlackCastlingKingSideAvailable);
+            Assert.Equal(b1.BlackCastlingQueenSideAvailable, b2.BlackCastlingQueenSideAvailable);
+
+        }
+
     }
 }

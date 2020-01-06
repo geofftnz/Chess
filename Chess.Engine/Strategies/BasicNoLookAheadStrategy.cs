@@ -8,11 +8,20 @@ namespace Chess.Engine.Strategies
 {
     public class BasicNoLookAheadStrategy : IStrategy
     {
+        private IStrategy fallbackStrategy = new RandomStrategy();
         private Random random = new Random();
 
-        public Move SelectNextMove(BoardState board, Player player, IList<Move> moves)
+        public Move SelectNextMove(BoardState board, Player player, IList<Move> moves, out string reasoning)
         {
-            return RankedMoves(moves.OrderBy(m => Guid.NewGuid()).ToList()).FirstOrDefault();
+            var rankedMoves = RankedMoves(moves.OrderBy(m => Guid.NewGuid()).ToList());
+
+            if (rankedMoves.Any())
+            {
+                var bestMove = rankedMoves.First();
+                reasoning = bestMove.IsWithCheck ? "Check" : "Capturing";
+            }
+
+            return fallbackStrategy.SelectNextMove(board, player, moves, out reasoning);
         }
 
         private IEnumerable<Move> RankedMoves(IList<Move> moves)
@@ -23,10 +32,6 @@ namespace Chess.Engine.Strategies
 
             // then look for capturing moves
             foreach (var move in moves.Where(m => m.IsCapturing).OrderByDescending(m => m.CapturedPiece.GetPieceValue()))
-                yield return move;
-
-            // then pick a random move
-            foreach (var move in moves)
                 yield return move;
         }
 
