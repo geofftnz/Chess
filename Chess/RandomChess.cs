@@ -14,7 +14,7 @@ namespace Chess
         {
             var board = BoardState.InitialBoard;
             var random = new Random();
-            IStrategy strategy = new BasicLookAheadStrategy();
+            IStrategy strategy = new BasicNoLookAheadStrategy();
             string reasoning;
 
             while (true)
@@ -23,11 +23,14 @@ namespace Chess
 
                 if (moves.Count == 0)
                 {
-                    Console.WriteLine("No available moves");
+                    Console.Clear();
+                    board.RenderToConsole();
+                    Console.WriteLine($"Checkmate by {board.NextPlayerToMove.GetOpponent()}");
 
                     while (Console.ReadKey().Key != ConsoleKey.Escape) ;
 
-                    break;
+                    board = BoardState.InitialBoard;
+                    continue;
                 }
 
                 var move = strategy.SelectNextMove(board, board.NextPlayerToMove, moves, out reasoning);
@@ -41,7 +44,15 @@ namespace Chess
                 Console.WriteLine(string.Join(" ",moves.Select(m=>m.ToAnnotation())));
 
                 //if (board.WhiteInCheck || board.BlackInCheck)
-                Console.ReadKey();
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.Escape)
+                {
+                    break;
+                }
+                if (key.Key == ConsoleKey.R)
+                {
+                    board = BoardState.InitialBoard;
+                }
             }
         }
     }

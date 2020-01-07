@@ -19,6 +19,7 @@ namespace Chess.Engine.Strategies
             {
                 var bestMove = rankedMoves.First();
                 reasoning = bestMove.IsWithCheck ? "Check" : "Capturing";
+                return bestMove;
             }
 
             return fallbackStrategy.SelectNextMove(board, player, moves, out reasoning);
