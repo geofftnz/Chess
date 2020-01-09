@@ -66,5 +66,50 @@ namespace Chess.Engine.Test.Board
             new object[]{"Ra4",new Move(Piece.WhiteRook,Square.a1, Square.a4) },
         };
 
+        [Fact]
+        public void cannot_capture_own_piece()
+        {
+            var sut = new Move(Piece.WhiteBishop, Square.a1, Square.c3, Piece.WhiteKnight);
+
+            Assert.False(sut.IsCapturing);
+        }
+
+        [Theory]
+        [InlineData(Piece.WhiteBishop, Square.a1, Square.a4, Piece.WhitePawn)]
+        public void is_defendingpiece_true(Piece p, Square from, Square to, Piece target)
+        {
+            var sut = new Move(p, from, to, target);
+            Assert.True(sut.IsDefendingPiece);
+        }
+
+        [Theory]
+        [InlineData(Piece.WhiteBishop, Square.a1, Square.a4, Piece.None)]
+        [InlineData(Piece.WhiteBishop, Square.a1, Square.a4, Piece.BlackKnight)]
+        public void is_defendingpiece_false(Piece p, Square from, Square to, Piece target)
+        {
+            var sut = new Move(p, from, to, target);
+            Assert.False(sut.IsDefendingPiece);
+        }
+
+        [Theory]
+        [InlineData(Piece.WhiteBishop, Square.a1, Square.a4, Piece.None)]
+        [InlineData(Piece.WhitePawn, Square.d4, Square.c5, Piece.None)]
+        [InlineData(Piece.WhitePawn, Square.d4, Square.e5, Piece.None)]
+        public void is_defendingsquare_true(Piece p, Square from, Square to, Piece target)
+        {
+            var sut = new Move(p, from, to, target);
+            Assert.True(sut.IsDefendingSquare);
+        }
+
+        [Theory]
+        [InlineData(Piece.WhiteBishop, Square.a1, Square.a4, Piece.WhiteKnight)]
+        [InlineData(Piece.WhiteBishop, Square.a1, Square.a4, Piece.BlackKnight)]
+        [InlineData(Piece.WhitePawn, Square.d4, Square.d5, Piece.None)]
+        public void is_defendingsquare_false(Piece p, Square from, Square to, Piece target)
+        {
+            var sut = new Move(p, from, to, target);
+            Assert.False(sut.IsDefendingSquare);
+        }
+
     }
 }

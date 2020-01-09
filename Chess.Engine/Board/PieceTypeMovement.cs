@@ -21,7 +21,7 @@ namespace Chess.Engine.Board
         /// <param name="rankofs"></param>
         /// <param name="limit"></param>
         /// <returns></returns>
-        public static IEnumerable<Square> Walk(BoardState b, Piece p, Square start, int fileofs = 0, int rankofs = 1, int limit = 7)
+        public static IEnumerable<Square> Walk(BoardState b, Piece p, Square start, int fileofs = 0, int rankofs = 1, bool simulateCapture = false, int limit = 7)
         {
             int i = 0;
             Square? square = start.Offset(fileofs, rankofs);
@@ -29,7 +29,8 @@ namespace Chess.Engine.Board
             {
                 var current = b.PieceAt(square.Value);
                 // is this square occupied by the same player?
-                if (current.GetPlayer() == p.GetPlayer())
+                // If we're simulating capture, then we want the move because we use it to detect defending pieces.
+                if (current.GetPlayer() == p.GetPlayer() && !simulateCapture)
                 {
                     break;
                 }
@@ -38,7 +39,8 @@ namespace Chess.Engine.Board
                 yield return square.Value;
 
                 // is this square occupied by the other player?
-                if (current.GetPieceType() != PieceType.None && current.GetPlayer() != p.GetPlayer())
+                // If we're simulating capture, also break on our own pieces.
+                if (current.GetPieceType() != PieceType.None && (current.GetPlayer() != p.GetPlayer() || simulateCapture))
                 {
                     break;
                 }
@@ -48,44 +50,44 @@ namespace Chess.Engine.Board
             }
         }
 
-        public static IEnumerable<Move> RookMoves(BoardState b, Piece p, Square s)
+        public static IEnumerable<Move> RookMoves(BoardState b, Piece p, Square s, bool simulateCapture = false)
         {
             // collect potential target squares
             foreach (var square in
-                Walk(b, p, s, -1, 0)
-                .Concat(Walk(b, p, s, 1, 0))
-                .Concat(Walk(b, p, s, 0, -1))
-                .Concat(Walk(b, p, s, 0, 1)))
+                Walk(b, p, s, -1, 0, simulateCapture)
+                .Concat(Walk(b, p, s, 1, 0, simulateCapture))
+                .Concat(Walk(b, p, s, 0, -1, simulateCapture))
+                .Concat(Walk(b, p, s, 0, 1, simulateCapture)))
             {
                 yield return new Move(p, s, square, b.PieceAt(square));
             }
         }
 
-        public static IEnumerable<Move> BishopMoves(BoardState b, Piece p, Square s)
+        public static IEnumerable<Move> BishopMoves(BoardState b, Piece p, Square s, bool simulateCapture = false)
         {
             // collect potential target squares
             foreach (var square in
-                Walk(b, p, s, -1, -1)
-                .Concat(Walk(b, p, s, 1, -1))
-                .Concat(Walk(b, p, s, -1, 1))
-                .Concat(Walk(b, p, s, 1, 1)))
+                Walk(b, p, s, -1, -1, simulateCapture)
+                .Concat(Walk(b, p, s, 1, -1, simulateCapture))
+                .Concat(Walk(b, p, s, -1, 1, simulateCapture))
+                .Concat(Walk(b, p, s, 1, 1, simulateCapture)))
             {
                 yield return new Move(p, s, square, b.PieceAt(square));
             }
         }
 
-        public static IEnumerable<Move> QueenMoves(BoardState b, Piece p, Square s)
+        public static IEnumerable<Move> QueenMoves(BoardState b, Piece p, Square s, bool simulateCapture = false)
         {
             // collect potential target squares
             foreach (var square in
-                Walk(b, p, s, -1, -1)
-                .Concat(Walk(b, p, s, 1, -1))
-                .Concat(Walk(b, p, s, -1, 1))
-                .Concat(Walk(b, p, s, 1, 1))
-                .Concat(Walk(b, p, s, -1, 0))
-                .Concat(Walk(b, p, s, 1, 0))
-                .Concat(Walk(b, p, s, 0, -1))
-                .Concat(Walk(b, p, s, 0, 1))
+                Walk(b, p, s, -1, -1, simulateCapture)
+                .Concat(Walk(b, p, s, 1, -1, simulateCapture))
+                .Concat(Walk(b, p, s, -1, 1, simulateCapture))
+                .Concat(Walk(b, p, s, 1, 1, simulateCapture))
+                .Concat(Walk(b, p, s, -1, 0, simulateCapture))
+                .Concat(Walk(b, p, s, 1, 0, simulateCapture))
+                .Concat(Walk(b, p, s, 0, -1, simulateCapture))
+                .Concat(Walk(b, p, s, 0, 1, simulateCapture))
                 )
             {
                 yield return new Move(p, s, square, b.PieceAt(square));
@@ -170,18 +172,18 @@ namespace Chess.Engine.Board
             yield break;
         }
 
-        public static IEnumerable<Move> KingMoves(BoardState b, Piece p, Square s)
+        public static IEnumerable<Move> KingMoves(BoardState b, Piece p, Square s, bool simulateCapture = false)
         {
             // collect potential target squares
             foreach (var square in
-                Walk(b, p, s, -1, -1, 1)
-                .Concat(Walk(b, p, s, 1, -1, 1))
-                .Concat(Walk(b, p, s, -1, 1, 1))
-                .Concat(Walk(b, p, s, 1, 1, 1))
-                .Concat(Walk(b, p, s, -1, 0, 1))
-                .Concat(Walk(b, p, s, 1, 0, 1))
-                .Concat(Walk(b, p, s, 0, -1, 1))
-                .Concat(Walk(b, p, s, 0, 1, 1))
+                Walk(b, p, s, -1, -1, simulateCapture, 1)
+                .Concat(Walk(b, p, s, 1, -1, simulateCapture, 1))
+                .Concat(Walk(b, p, s, -1, 1, simulateCapture, 1))
+                .Concat(Walk(b, p, s, 1, 1, simulateCapture, 1))
+                .Concat(Walk(b, p, s, -1, 0, simulateCapture, 1))
+                .Concat(Walk(b, p, s, 1, 0, simulateCapture, 1))
+                .Concat(Walk(b, p, s, 0, -1, simulateCapture, 1))
+                .Concat(Walk(b, p, s, 0, 1, simulateCapture, 1))
                 .Concat(CastlingMoves(b, p, s))
                 )
             {
@@ -200,7 +202,7 @@ namespace Chess.Engine.Board
             new Tuple<int, int>(-2,1),
             new Tuple<int, int>(2,1)
         };
-        public static IEnumerable<Move> KnightMoves(BoardState b, Piece p, Square s)
+        public static IEnumerable<Move> KnightMoves(BoardState b, Piece p, Square s, bool simulateCapture = false)
         {
             foreach (var square in KnightOffsets
                 .Select(ofs => s.Offset(ofs.Item1, ofs.Item2))
@@ -216,13 +218,13 @@ namespace Chess.Engine.Board
                         yield return new Move(p, s, square, current);
                         break;
                     case Player.White:
-                        if (p.GetPlayer() == Player.Black)  // can capture
+                        if (p.GetPlayer() == Player.Black || simulateCapture)  // can capture
                         {
                             yield return new Move(p, s, square, current);
                         }
                         break;
                     case Player.Black:
-                        if (p.GetPlayer() == Player.White)  // can capture
+                        if (p.GetPlayer() == Player.White || simulateCapture)  // can capture
                         {
                             yield return new Move(p, s, square, current);
                         }
@@ -233,7 +235,7 @@ namespace Chess.Engine.Board
             }
         }
 
-        public static IEnumerable<Move> PawnMoves(BoardState b, Piece p, Square s)
+        public static IEnumerable<Move> PawnMoves(BoardState b, Piece p, Square s, bool simulateCapture = false)
         {
             int forward = p.GetPlayer() == Player.White ? 1 : -1;
             int promotionRank = p.GetPlayer() == Player.White ? 8 : 1;
@@ -268,7 +270,7 @@ namespace Chess.Engine.Board
                 .Select(f => s.Offset(f, forward))
                 .Where(f => f.HasValue)
                 .Select(f => f.Value)
-                .Where(sq => !b.IsEmpty(sq) && b.PieceAt(sq).GetPlayer() != p.GetPlayer())
+                .Where(sq => (!b.IsEmpty(sq) && b.PieceAt(sq).GetPlayer() != p.GetPlayer()) || simulateCapture)
                 )
             {
                 if (target1.GetRank() == promotionRank)
@@ -299,34 +301,34 @@ namespace Chess.Engine.Board
             yield break;
         }
 
-        public static IEnumerable<Move> GetMovesBeforeCheckTest(this BoardState b, Piece p, Square s)
+        public static IEnumerable<Move> GetMovesBeforeCheckTest(this BoardState b, Piece p, Square s, bool simulateCapture = false)
         {
             switch (p.GetPieceType())
             {
                 case PieceType.None:
                     break;
                 case PieceType.Pawn:
-                    foreach (var move in PawnMoves(b, p, s))
+                    foreach (var move in PawnMoves(b, p, s, simulateCapture))
                         yield return move;
                     break;
                 case PieceType.Knight:
-                    foreach (var move in KnightMoves(b, p, s))
+                    foreach (var move in KnightMoves(b, p, s, simulateCapture))
                         yield return move;
                     break;
                 case PieceType.Bishop:
-                    foreach (var move in BishopMoves(b, p, s))
+                    foreach (var move in BishopMoves(b, p, s, simulateCapture))
                         yield return move;
                     break;
                 case PieceType.Rook:
-                    foreach (var move in RookMoves(b, p, s))
+                    foreach (var move in RookMoves(b, p, s, simulateCapture))
                         yield return move;
                     break;
                 case PieceType.Queen:
-                    foreach (var move in QueenMoves(b, p, s))
+                    foreach (var move in QueenMoves(b, p, s, simulateCapture))
                         yield return move;
                     break;
                 case PieceType.King:
-                    foreach (var move in KingMoves(b, p, s))
+                    foreach (var move in KingMoves(b, p, s, simulateCapture))
                         yield return move;
                     break;
                 default:
@@ -347,6 +349,33 @@ namespace Chess.Engine.Board
                 {
                     yield return move;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets all moves, including simulated captures of all squares & pieces.
+        /// Used to determine what squares and pieces are protected by other pieces.
+        /// </summary>
+        /// <param name="b"></param>
+        /// <param name="p"></param>
+        /// <param name="s"></param>
+        /// <param name="skipTestForCheck"></param>
+        /// <returns></returns>
+        public static IEnumerable<Move> GetSimulatedMoves(this BoardState b, Piece p, Square s, bool skipTestForCheck = false)
+        {
+            foreach (var move in b.GetMovesBeforeCheckTest(p, s, true))
+            {
+                move.NoValidation = true;
+
+                if (!skipTestForCheck && b.MoveResultsInCheckForPlayer(move, move.Player.GetOpponent()))
+                {
+                    move.IsWithCheck = true;
+                }
+
+                // we still include moves that would place player in check
+                move.WouldPlacePlayerInCheck = b.MoveResultsInCheckForPlayer(move, move.Player);
+
+                yield return move;
             }
         }
     }

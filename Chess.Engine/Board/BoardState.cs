@@ -110,7 +110,7 @@ namespace Chess.Engine.Board
             float white = 0f;
             float black = 0f;
 
-            foreach(var piece in Board)
+            foreach (var piece in Board)
             {
                 switch (piece.GetPlayer())
                 {
@@ -311,6 +311,9 @@ namespace Chess.Engine.Board
 
         public void ValidateMove(Move m)
         {
+            if (m.NoValidation)
+                return;
+
             if (PieceAt(m.From) != m.Piece)
             {
                 throw new InvalidMoveException(InvalidMoveReason.PieceNotAtSpecifiedSquare);
@@ -351,6 +354,17 @@ namespace Chess.Engine.Board
             return GetMoves(NextPlayerToMove);
         }
 
+        public IEnumerable<Move> GetMoves(bool skipTestForCheck = false)
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                foreach (var move in GetMoves((Square)i, skipTestForCheck))
+                {
+                    yield return move;
+                }
+            }
+        }
+
         public IEnumerable<Move> GetMoves(Square square, bool skipTestForCheck = false)
         {
             var piece = PieceAt(square);
@@ -363,6 +377,23 @@ namespace Chess.Engine.Board
 
             yield break;
         }
+
+        public IEnumerable<Move> SimulateMoves(bool skipTestForCheck = false)
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                var piece = PieceAt((Square)i);
+
+                if (piece != Piece.None)
+                {
+                    foreach (var move in this.GetSimulatedMoves(piece, (Square)i, skipTestForCheck))
+                    {
+                        yield return move;
+                    }
+                }
+            }
+        }
+
 
         public Move GenerateMove(Square from, Square to)
         {

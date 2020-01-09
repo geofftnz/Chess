@@ -11,10 +11,27 @@ namespace Chess.Engine.Board
         public Square To { get; set; }
         public Piece Piece { get; set; }
         public Piece CapturedPiece { get; set; }
-        public bool IsCapturing => CapturedPiece != Piece.None;
+        public bool IsCapturing => (CapturedPiece != Piece.None && CapturedPiece.GetPlayer() != Piece.GetPlayer());
+
+        public bool IsDefendingPiece => CapturedPiece != Piece.None && CapturedPiece.GetPlayer() == Piece.GetPlayer();
+        public bool IsDefendingSquare => 
+            CapturedPiece == Piece.None && 
+            (
+                Piece.GetPieceType() != PieceType.Pawn || 
+                (  // pawn rules
+                    !IsEnPassant &&  // cannot be defending a square with an en passant move. (TODO: or can it?)
+                    From.GetFile() != To.GetFile()  // pawns must be moving diagonally
+                )
+            );
+
+        public bool IsDefending => IsDefendingPiece || IsDefendingSquare;
+
         public bool IsWithCheck { get; set; }
         public bool IsEnPassant { get; set; }
         public PieceType PromoteTo { get; set; }
+
+        public bool WouldPlacePlayerInCheck { get; set; }
+        public bool NoValidation { get; set; } = false;
 
         public Player Player => Piece.GetPlayer();
         public PieceType PieceType => Piece.GetPieceType();

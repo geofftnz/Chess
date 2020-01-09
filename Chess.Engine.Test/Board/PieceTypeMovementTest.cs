@@ -12,7 +12,7 @@ namespace Chess.Engine.Test.Board
 
         private static List<Square> SetupPieceAndGetMoveTargets(Piece p, Square starting)
         {
-            return SetupPieceAndGetMoves(p,starting).Select(m => m.To).ToList();
+            return SetupPieceAndGetMoves(p, starting).Select(m => m.To).ToList();
         }
         private static List<Move> SetupPieceAndGetMoves(Piece piece, Square square)
         {
@@ -287,7 +287,7 @@ namespace Chess.Engine.Test.Board
             var b = new BoardState("wke5 brh1");
             var moves = b.GetMoves(Player.Black).ToList();
 
-            foreach(var move in moves)
+            foreach (var move in moves)
             {
                 if (move.To == Square.h5 || move.To == Square.e1)
                 {
@@ -304,7 +304,7 @@ namespace Chess.Engine.Test.Board
         public void generates_castle_white_queenside()
         {
             var b = BoardState.InitialBoard;
-            b.Apply(b.GenerateMove(Square.b1, Square.a3));            
+            b.Apply(b.GenerateMove(Square.b1, Square.a3));
             b.Apply(b.GenerateMove(Square.d2, Square.d4));
             b.Apply(b.GenerateMove(Square.c1, Square.e3));
             Assert.DoesNotContain(b.GetMoves(Player.White), m => m.IsWhiteQueenSideCastle);
@@ -396,5 +396,17 @@ namespace Chess.Engine.Test.Board
             Assert.Equal(Piece.BlackKing, b.PieceAt(Square.c8));
             Assert.Equal(Piece.BlackRook, b.PieceAt(Square.d8));
         }
+
+
+        [Theory]
+        [InlineData("wpc2 wpd3", Square.d3)]
+        public void generates_defended_pieces(string boardState, Square defendedSquare)
+        {
+            var b = new BoardState(boardState);
+            var moves = b.SimulateMoves().ToList();
+
+            Assert.Contains(defendedSquare, moves.Where(m => m.IsDefendingPiece).Select(m => m.To));
+        }
+
     }
 }
