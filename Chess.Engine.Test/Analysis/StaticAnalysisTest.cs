@@ -114,5 +114,18 @@ namespace Chess.Engine.Test.Analysis
             StaticAnalysis sut = new StaticAnalysis(new BoardState(boardState));
             Assert.False(sut.Analysis[(int)square].IsHardPinned);
         }
+
+        [Theory]
+        [InlineData("wba1 bqh8", Square.h7, 0)]
+        [InlineData("wba1 bqh8",Square.h8,1)]
+        [InlineData("wba1 wrh1 bqh8", Square.h8, 2)]
+        [InlineData("wba1 wrh1 bqh8", Square.a1, 1)]
+        [InlineData("wba1 wrh1 bqh8", Square.h1, 1)]
+        public void attack_count(string boardState, Square target, int attackCount)
+        {
+            StaticAnalysis sut = new StaticAnalysis(new BoardState(boardState));
+            Assert.Equal(attackCount,sut.Analysis[(int)target].AttackCount);
+
+        }
     }
 }

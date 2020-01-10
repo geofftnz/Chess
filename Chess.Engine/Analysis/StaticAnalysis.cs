@@ -13,7 +13,8 @@ namespace Chess.Engine.Analysis
             public Square Square;
             public Piece Piece;
 
-            public bool PieceUnderThreat;
+            public int AttackCount;  // number of pieces attacking this piece
+            public bool PieceUnderThreat => AttackCount > 0;
             public bool IsDefendedPiece;
             public bool IsWhiteDefendedSquare;
             public bool IsBlackDefendedSquare;
@@ -40,7 +41,7 @@ namespace Chess.Engine.Analysis
                 Analysis[i].Square = (Square)i;
                 Analysis[i].Piece = Board.Board[i];
 
-                Analysis[i].PieceUnderThreat = false;
+                Analysis[i].AttackCount = 0;
             }
 
             var moves = Board.SimulateMoves().ToList();
@@ -48,7 +49,7 @@ namespace Chess.Engine.Analysis
             // Threats
             foreach(var sq in moves.Where(m => m.IsCapturing && !m.WouldPlacePlayerInCheck).Select(m=>m.To))
             {
-                Analysis[(int)sq].PieceUnderThreat = true;
+                Analysis[(int)sq].AttackCount++;
             }
 
             // Defended pieces
