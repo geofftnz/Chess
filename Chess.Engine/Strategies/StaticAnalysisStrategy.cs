@@ -24,7 +24,8 @@ namespace Chess.Engine.Strategies
                 .Select(m =>
                 {
                     var a = new StaticAnalysis(m.Item2);
-                    return new Tuple<Move, float>(m.Item1, a.GetBoardValue(player) - a.GetBoardValue(player.GetOpponent()));
+                    return new Tuple<Move, float>(m.Item1, a.GetBoardValue(player, m.Item1) - a.GetBoardValue(player.GetOpponent()));
+                    //return new Tuple<Move, float>(m.Item1, a.GetBoardValue(player));
                 })
                 .OrderByDescending(m => m.Item2)
                 .ThenByDescending(m => Guid.NewGuid())

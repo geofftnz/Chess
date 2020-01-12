@@ -41,12 +41,18 @@ namespace Chess
                 board.RenderToConsole();
                 Console.WriteLine();
                 var analysis = new StaticAnalysis(board);
-                Console.WriteLine($"Value for white: {analysis.GetBoardValue(Player.White)} ({string.Join(",",analysis.GetBoardValueComponents(Player.White).Select(kv=>kv.Key + ":" + kv.Value))})");
-                Console.WriteLine($"Value for black: {analysis.GetBoardValue(Player.Black)} ({string.Join(",", analysis.GetBoardValueComponents(Player.Black).Select(kv => kv.Key + ":" + kv.Value))})");
+
+                Console.WriteLine($"Value for {move.Player}: {analysis.GetBoardValue(move.Player,move)} ({string.Join(",", analysis.GetBoardValueComponents(move.Player, move).Select(kv => kv.Key + ":" + kv.Value))})");
+
+                //Console.WriteLine($"Value for white: {analysis.GetBoardValue(Player.White)} ({string.Join(",", analysis.GetBoardValueComponents(Player.White, move).Select(kv => kv.Key + ":" + kv.Value))})");
+                //Console.WriteLine($"Value for black: {analysis.GetBoardValue(Player.Black)} ({string.Join(",", analysis.GetBoardValueComponents(Player.Black, move).Select(kv => kv.Key + ":" + kv.Value))})");
+
                 Console.WriteLine($"{move.ToString()} because {reasoning}");
                 Console.WriteLine($"{moves.Count} moves");
-                Console.WriteLine(string.Join(" ",moves.Select(m=>m.ToAnnotation())));
+                Console.WriteLine(string.Join(" ", moves.Select(m => m.ToAnnotation())));
                 Console.WriteLine($"{board.NextPlayerToMove} to move...");
+
+                Console.WriteLine($"White defends: {string.Join(" ",analysis.Analysis.Where(sq=>sq.IsWhiteDefendedSquare).Select(sq=>sq.Square.ToString()))}");
 
 
 

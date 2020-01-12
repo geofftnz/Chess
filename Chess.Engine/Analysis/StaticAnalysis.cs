@@ -88,7 +88,12 @@ namespace Chess.Engine.Analysis
             }
         }
 
-        public float GetBoardValue(Player player)
+        public bool IsSquareDefendedBy(Square square, Player player)
+        {
+            return (player == Player.White) ? Analysis[(int)square].IsWhiteDefendedSquare : Analysis[(int)square].IsBlackDefendedSquare;
+        }
+
+        public float GetBoardValue(Player player, Move proposedMove = null)
         {
             float value = 0f;
 
@@ -96,7 +101,7 @@ namespace Chess.Engine.Analysis
             value += GetMaterialValue(player);
 
             // rank pawns higher based on advancement
-            value += GetPawnAdvancementValue(player) * 0.1f;
+            value += GetPawnAdvancementValue(player) * 0.2f;
 
             // value of the pieces we're attacking
             value += GetValueOfAttackedUndefendedPieces(player.GetOpponent()) * 0.2f;
@@ -105,10 +110,14 @@ namespace Chess.Engine.Analysis
             value += GetValueOfAttackedUndefendedPieces(player) * 0.2f;
 
             // value of squares we're defending
-            value += GetCountOfDefendedSquares(player) * 0.5f;
+            value += GetCountOfDefendedSquares(player) * 0.1f;
+
+            // de-weight value if we're moving to an opponent-controlled square
+            value += GetProposedMoveValue(player, proposedMove);
 
             return value;
         }
+
 
         public float GetMaterialValue(Player player)
         {
@@ -130,18 +139,27 @@ namespace Chess.Engine.Analysis
 
         public float GetCountOfDefendedSquares(Player player)
         {
-            return player== Player.White ?
+            return player == Player.White ?
                 GetCountOfSquares(sq => sq.IsWhiteDefendedSquare) :
                 GetCountOfSquares(sq => sq.IsBlackDefendedSquare);
         }
-
-        public IEnumerable<KeyValuePair<string, float>> GetBoardValueComponents(Player player)
+        private float GetProposedMoveValue(Player player, Move proposedMove)
         {
-            yield return new KeyValuePair<string, float>("Material", GetMaterialValue(player));
-            yield return new KeyValuePair<string, float>("PawnAdvance", GetPawnAdvancementValue(player));
-            yield return new KeyValuePair<string, float>("TheirUndef", GetValueOfAttackedUndefendedPieces(player.GetOpponent()));
+            if (proposedMove == null)
+                return 0f;
+
+            return -1.0f * (Analysis[(int)proposedMove.To].PieceUnderThreat ? proposedMove.Piece.GetPieceValue() : 0f);
+            //return 2f * (IsSquareDefendedBy(proposedMove.To, player.GetOpponent()) ? proposedMove.Piece.GetPieceValue() : 0f);
+        }
+
+        public IEnumerable<KeyValuePair<string, float>> GetBoardValueComponents(Player player, Move proposedMove = null)
+        {
+            yield return new KeyValuePair<string, float>("Mat", GetMaterialValue(player));
+            yield return new KeyValuePair<string, float>("PAd", GetPawnAdvancementValue(player));
+            yield return new KeyValuePair<string, float>("OppUndef", GetValueOfAttackedUndefendedPieces(player.GetOpponent()));
             yield return new KeyValuePair<string, float>("OurUndef", -GetValueOfAttackedUndefendedPieces(player));
-            yield return new KeyValuePair<string, float>("DefSq", GetCountOfDefendedSquares(player));
+            yield return new KeyValuePair<string, float>("NDefSq", GetCountOfDefendedSquares(player));
+            yield return new KeyValuePair<string, float>("Move", GetProposedMoveValue(player, proposedMove));
         }
 
     }

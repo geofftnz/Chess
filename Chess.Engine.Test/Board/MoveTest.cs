@@ -95,6 +95,7 @@ namespace Chess.Engine.Test.Board
         [InlineData(Piece.WhiteBishop, Square.a1, Square.a4, Piece.None)]
         [InlineData(Piece.WhitePawn, Square.d4, Square.c5, Piece.None)]
         [InlineData(Piece.WhitePawn, Square.d4, Square.e5, Piece.None)]
+        [InlineData(Piece.WhiteBishop, Square.c1, Square.g5, Piece.None)]
         public void is_defendingsquare_true(Piece p, Square from, Square to, Piece target)
         {
             var sut = new Move(p, from, to, target);

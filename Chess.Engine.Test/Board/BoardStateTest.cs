@@ -279,7 +279,7 @@ namespace Chess.Engine.Test.Board
             var b1 = BoardState.InitialBoard;
             var b2 = (BoardState)b1.Clone();
 
-            for(int i = 0; i < b1.Board.Length; i++)
+            for (int i = 0; i < b1.Board.Length; i++)
             {
                 Assert.Equal(b1.Board[i], b2.Board[i]);
             }
@@ -312,6 +312,17 @@ namespace Chess.Engine.Test.Board
             var b = new BoardState(boardState);
 
             Assert.Equal(isInCheck, b.BlackInCheck);
+        }
+
+        [Theory]
+        [InlineData("wbc1", Piece.WhiteBishop, Square.g5)]
+        public void can_simulate_move(string boardState, Piece p, Square target)
+        {
+            var b = new BoardState(boardState);
+            var moves = b.SimulateMoves().ToList();
+
+            Assert.Contains<Move>(moves, m => m.Piece == p && m.To == target && m.IsDefendingSquare);
+
         }
 
     }
