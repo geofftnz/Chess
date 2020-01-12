@@ -28,6 +28,7 @@ namespace Chess.Engine.Board
 
         public Player NextPlayerToMove { get => (Player)Flags[8]; set => Flags[8] = (int)value; }
 
+        private bool CheckCalculated = false;
         
 
         public IEnumerable<PositionedPiece> Pieces
@@ -100,8 +101,22 @@ namespace Chess.Engine.Board
 
         public BoardState SetCheckFlags()
         {
-            WhiteInCheck = IsPlayerInCheck(Player.White);
-            BlackInCheck = IsPlayerInCheck(Player.Black);
+            WhiteInCheck = false;
+            BlackInCheck = false;
+
+            var whiteKing = FindPiece(Piece.WhiteKing).ToList();
+            if (whiteKing.Count == 1)
+            {
+                WhiteInCheck = this.IsPlayerInCheck(Player.White, whiteKing[0]);
+            }
+
+            var blackKing = FindPiece(Piece.BlackKing).ToList();
+            if (blackKing.Count == 1)
+            {
+                BlackInCheck = this.IsPlayerInCheck(Player.Black, blackKing[0]);
+            }
+
+            CheckCalculated = true;
             return this;
         }
 
@@ -167,6 +182,9 @@ namespace Chess.Engine.Board
             EnPassantTargetPlayer = Player.None;
             EnPassantTargetSquare = null;
             NextPlayerToMove = Player.White;
+            WhiteInCheck = false;
+            BlackInCheck = false;
+            CheckCalculated = true;
 
             return this;
         }
@@ -291,6 +309,7 @@ namespace Chess.Engine.Board
                 }
             }
 
+            CheckCalculated = false;
             if (!skipFlagUpdate)
             {
                 SetCheckFlags();
@@ -414,7 +433,13 @@ namespace Chess.Engine.Board
         /// <returns></returns>
         public bool IsPlayerInCheck(Player player)
         {
-            return GetMoves(player.GetOpponent(), true).Where(m => m.CapturedPiece == player.GetPiece(PieceType.King)).Any();
+            if (!CheckCalculated)
+            {
+                throw new InvalidOperationException("Check has not been calculated.");
+            }
+            
+            return (player == Player.White) ? WhiteInCheck : BlackInCheck;
+                
         }
 
         /// <summary>
@@ -430,6 +455,27 @@ namespace Chess.Engine.Board
             // TODO: check for available moves.
 
             return false;
+        }
+
+        public IEnumerable<Square> FindPiece(Piece p)
+        {
+            for (int i = 0; i < 64; i++)
+            {
+                if (Board[i] == p)
+                {
+                    yield return (Square)i;
+                }
+            }
+        }
+
+        public bool IsPieceAtOffset(Square square, int fileofs, int rankofs, Piece piece)
+        {
+            var sq = square.Offset(fileofs, rankofs);
+            if (!sq.HasValue)
+            {
+                return false;
+            }
+            return Board[(int)sq.Value] == piece;
         }
     }
 }

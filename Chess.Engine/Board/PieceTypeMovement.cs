@@ -191,7 +191,7 @@ namespace Chess.Engine.Board
             }
         }
 
-        private static IEnumerable<Tuple<int, int>> KnightOffsets = new List<Tuple<int, int>>
+        public static IList<Tuple<int, int>> KnightOffsets = new List<Tuple<int, int>>
         {
             new Tuple<int, int>(-1,-2),
             new Tuple<int, int>(1,-2),
