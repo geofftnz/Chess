@@ -289,5 +289,30 @@ namespace Chess.Engine.Test.Board
 
         }
 
+        [Theory]
+        [InlineData("bke1 wkc6 brc2", true)]
+        [InlineData("bke1 wkc6 brc2 wpc5", false)]
+        [InlineData("bke8 wke1 bpf2", true)]
+        public void is_white_in_check(string boardState, bool isInCheck)
+        {
+            var b = new BoardState(boardState);
+
+            Assert.Equal(isInCheck, b.WhiteInCheck);
+        }
+        [Theory]
+        [InlineData("wke1 bkc6 wrc2", true)]
+        [InlineData("bra8 bke8 brh8 wqe5 wke1", true)]
+        [InlineData("bkh8 wba1 wke1", true)]
+        [InlineData("bkh8 wqa1 wke1", true)]
+        [InlineData("bkh8 wra1 wke1", false)]
+        [InlineData("bkh8 wra8 wke1", true)]
+        public void is_black_in_check(string boardState, bool isInCheck)
+
+        {
+            var b = new BoardState(boardState);
+
+            Assert.Equal(isInCheck, b.BlackInCheck);
+        }
+
     }
 }

@@ -12,10 +12,14 @@ namespace Chess.Engine.Analysis
         {
             public Square Square;
             public Piece Piece;
+            public Player Player;
+            public PieceType PieceType;
+            public float RawValue;
 
             public int AttackCount;  // number of pieces attacking this piece
             public bool PieceUnderThreat => AttackCount > 0;
             public bool IsDefendedPiece;
+            public bool IsUndefendedAttack => PieceUnderThreat && !IsDefendedPiece;
             public bool IsWhiteDefendedSquare;
             public bool IsBlackDefendedSquare;
             public bool IsHardPinned;  // cannot move due to threat to king
@@ -40,6 +44,9 @@ namespace Chess.Engine.Analysis
             {
                 Analysis[i].Square = (Square)i;
                 Analysis[i].Piece = Board.Board[i];
+                Analysis[i].Player = Board.Board[i].GetPlayer();
+                Analysis[i].PieceType = Board.Board[i].GetPieceType();
+                Analysis[i].RawValue = Analysis[i].PieceType.GetPieceValue();
 
                 Analysis[i].AttackCount = 0;
             }
@@ -47,7 +54,7 @@ namespace Chess.Engine.Analysis
             var moves = Board.SimulateMoves().ToList();
 
             // Threats
-            foreach(var sq in moves.Where(m => m.IsCapturing && !m.WouldPlacePlayerInCheck).Select(m=>m.To))
+            foreach (var sq in moves.Where(m => m.IsCapturing && !m.WouldPlacePlayerInCheck).Select(m => m.To))
             {
                 Analysis[(int)sq].AttackCount++;
             }
@@ -71,7 +78,7 @@ namespace Chess.Engine.Analysis
             }
 
             // Pinned pieces
-            foreach(var sq in moves.Where(m => m.WouldPlacePlayerInCheck).Select(m => m.From))
+            foreach (var sq in moves.Where(m => m.WouldPlacePlayerInCheck).Select(m => m.From))
             {
                 // no other legal moves for piece
                 if (!moves.Any(m => m.From == sq && !m.WouldPlacePlayerInCheck))
@@ -79,7 +86,62 @@ namespace Chess.Engine.Analysis
                     Analysis[(int)sq].IsHardPinned = true;
                 }
             }
+        }
 
+        public float GetBoardValue(Player player)
+        {
+            float value = 0f;
+
+            // value of material on the board (ex-King)
+            value += GetMaterialValue(player);
+
+            // rank pawns higher based on advancement
+            value += GetPawnAdvancementValue(player) * 0.1f;
+
+            // value of the pieces we're attacking
+            value += GetValueOfAttackedUndefendedPieces(player.GetOpponent()) * 0.2f;
+
+            // value of our attacked, undefended pieces.
+            value += GetValueOfAttackedUndefendedPieces(player) * 0.2f;
+
+            // value of squares we're defending
+            value += GetCountOfDefendedSquares(player) * 0.5f;
+
+            return value;
+        }
+
+        public float GetMaterialValue(Player player)
+        {
+            return Analysis.Where(sq => sq.Player == player && sq.PieceType != PieceType.King).Sum(sq => sq.RawValue);
+        }
+        public float GetPawnAdvancementValue(Player player)
+        {
+            int pawnHomeRank = player == Player.White ? 2 : 7;
+            return Analysis.Where(sq => sq.Player == player && sq.PieceType == PieceType.Pawn).Select(sq => (float)Math.Abs(sq.Square.GetRank() - pawnHomeRank) / 8).Sum();
+        }
+
+        public float GetValueOfPieces(Player player, Predicate<SquareAnalysis> predicate) => Analysis.Where(sq => sq.Player == player).Where(sq => predicate(sq)).Select(sq => sq.RawValue).Sum();
+        public float GetCountOfSquares(Predicate<SquareAnalysis> predicate) => Analysis.Where(sq => predicate(sq)).Count();
+
+        public float GetValueOfAttackedUndefendedPieces(Player player)
+        {
+            return GetValueOfPieces(player, sq => sq.IsUndefendedAttack);
+        }
+
+        public float GetCountOfDefendedSquares(Player player)
+        {
+            return player== Player.White ?
+                GetCountOfSquares(sq => sq.IsWhiteDefendedSquare) :
+                GetCountOfSquares(sq => sq.IsBlackDefendedSquare);
+        }
+
+        public IEnumerable<KeyValuePair<string, float>> GetBoardValueComponents(Player player)
+        {
+            yield return new KeyValuePair<string, float>("Material", GetMaterialValue(player));
+            yield return new KeyValuePair<string, float>("PawnAdvance", GetPawnAdvancementValue(player));
+            yield return new KeyValuePair<string, float>("TheirUndef", GetValueOfAttackedUndefendedPieces(player.GetOpponent()));
+            yield return new KeyValuePair<string, float>("OurUndef", -GetValueOfAttackedUndefendedPieces(player));
+            yield return new KeyValuePair<string, float>("DefSq", GetCountOfDefendedSquares(player));
         }
 
     }

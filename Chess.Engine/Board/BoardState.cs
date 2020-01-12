@@ -28,6 +28,8 @@ namespace Chess.Engine.Board
 
         public Player NextPlayerToMove { get => (Player)Flags[8]; set => Flags[8] = (int)value; }
 
+        
+
         public IEnumerable<PositionedPiece> Pieces
         {
             get
@@ -60,6 +62,7 @@ namespace Chess.Engine.Board
             {
                 SetPieceAt(positionedPiece);
             }
+            SetCheckFlags();
         }
 
         public static BoardState InitialBoard => new BoardState().SetupBoard();

@@ -1,4 +1,5 @@
-﻿using Chess.Engine.Board;
+﻿using Chess.Engine.Analysis;
+using Chess.Engine.Board;
 using Chess.Engine.Strategies;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace Chess
         {
             var board = BoardState.InitialBoard;
             var random = new Random();
-            IStrategy strategy = new BasicNoLookAheadStrategy();
+            IStrategy strategy = new StaticAnalysisStrategy();
             string reasoning;
 
             while (true)
@@ -39,9 +40,15 @@ namespace Chess
                 board.Apply(move);
                 board.RenderToConsole();
                 Console.WriteLine();
+                var analysis = new StaticAnalysis(board);
+                Console.WriteLine($"Value for white: {analysis.GetBoardValue(Player.White)} ({string.Join(",",analysis.GetBoardValueComponents(Player.White).Select(kv=>kv.Key + ":" + kv.Value))})");
+                Console.WriteLine($"Value for black: {analysis.GetBoardValue(Player.Black)} ({string.Join(",", analysis.GetBoardValueComponents(Player.Black).Select(kv => kv.Key + ":" + kv.Value))})");
                 Console.WriteLine($"{move.ToString()} because {reasoning}");
                 Console.WriteLine($"{moves.Count} moves");
                 Console.WriteLine(string.Join(" ",moves.Select(m=>m.ToAnnotation())));
+                Console.WriteLine($"{board.NextPlayerToMove} to move...");
+
+
 
                 //if (board.WhiteInCheck || board.BlackInCheck)
                 var key = Console.ReadKey();
