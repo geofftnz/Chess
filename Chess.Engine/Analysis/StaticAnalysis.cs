@@ -25,6 +25,10 @@ namespace Chess.Engine.Analysis
             public bool IsHardPinned;  // cannot move due to threat to king
             //public bool IsSoftPinned;  // absence of this piece could result in capture of another.
             //public float SoftPinValue; // max value of lost piece if soft-pinned piece is moved.
+
+            public bool IsDefendedBy(Player player) =>
+                (player == Player.White && (IsWhiteDefendedSquare || (IsDefendedPiece && Player == player))) ||
+                (player == Player.Black && (IsBlackDefendedSquare || (IsDefendedPiece && Player == player)));
         }
 
 

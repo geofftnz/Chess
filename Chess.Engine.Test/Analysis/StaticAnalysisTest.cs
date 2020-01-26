@@ -125,7 +125,25 @@ namespace Chess.Engine.Test.Analysis
         {
             StaticAnalysis sut = new StaticAnalysis(new BoardState(boardState));
             Assert.Equal(attackCount,sut.Analysis[(int)target].AttackCount);
+        }
 
+        [Theory]
+        [InlineData("bra8 bpa7", Square.a7, Player.Black)]
+        [InlineData("bra8 bpa7", Square.h8, Player.Black)]
+        public void isdefendedby_true(string boardState, Square target, Player player)
+        {
+            StaticAnalysis sut = new StaticAnalysis(new BoardState(boardState));
+            Assert.True(sut.Analysis[(int)target].IsDefendedBy(player));
+        }
+
+        [Theory]
+        [InlineData("bra8 bpa7", Square.a6, Player.Black)]
+        [InlineData("bra8 bpa7", Square.h7, Player.Black)]
+        [InlineData("bra8 bpa7", Square.h8, Player.White)]
+        public void isdefendedby_false(string boardState, Square target, Player player)
+        {
+            StaticAnalysis sut = new StaticAnalysis(new BoardState(boardState));
+            Assert.False(sut.Analysis[(int)target].IsDefendedBy(player));
         }
     }
 }

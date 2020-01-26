@@ -15,7 +15,7 @@ namespace Chess
         {
             var board = BoardState.InitialBoard;
             var random = new Random();
-            IStrategy strategy = new StaticAnalysisStrategy();
+            IStrategy strategy = new BasicStaticAnalysisStrategy();
             string reasoning;
 
             while (true)
